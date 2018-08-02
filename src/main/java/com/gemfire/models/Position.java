@@ -33,4 +33,48 @@ public class Position {
     public String key() {
         return accountKey + "_" + positionDate + "_" + hashCode();
     }
+
+    public Integer getAccountKey() {
+        return accountKey;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public String getAssetClassL1() {
+        return assetClassL1;
+    }
+
+    public String getAssetClassL2() {
+        return assetClassL2;
+    }
+
+    public String getSecurityId() {
+        return securityId;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public String getAccountGroupId() {
+        return accountGroupId;
+    }
+
+    public Integer getBalance() {
+        return balance;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public String getPositionDate() {
+        return positionDate;
+    }
 }

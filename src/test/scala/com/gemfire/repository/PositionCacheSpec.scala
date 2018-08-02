@@ -1,6 +1,6 @@
 package com.gemfire.repository
 
-import com.gemfire.models.{FxRate, Position}
+import com.gemfire.models.{DerivedPosition, FxRate, Position}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
@@ -28,7 +28,7 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
   }
 
   test("should multiply positions with FX rates") {
-    val positions = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28", "USD")
+    val positions: Seq[DerivedPosition] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28", "USD")
     assert(4 == positions.size)
   }
 
