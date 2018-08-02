@@ -32,6 +32,13 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     assert(4 == positions.size)
   }
 
+  test("should aggregate on balance after FX conversion") {
+    // /positions?assetClass=EQUITY&reportingCurrency=INR&date=2018-01-28&aggregate=AMOUNT
+    val aggregate = positionCache.getAggregatedPositions(1.toString, "EQUITY", "2018-01-28", "USD")
+    val expectedBalance = BigInt("2311129741")
+    assert(aggregate.balance == expectedBalance)
+  }
+
   private def seedData(): Unit = {
     positionCache.add(new Position(1, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
     positionCache.add(new Position(1, "SAVING_PLUS", "9952388707", "EQUITY_PLUS", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))

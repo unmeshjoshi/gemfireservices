@@ -1,7 +1,7 @@
 package com.gemfire.repository
 
 import com.gemfire.connection.GemfireRepository
-import com.gemfire.models.{DerivedPosition, FxRate, Position}
+import com.gemfire.models.{AggregatedPosition, DerivedPosition, FxRate, Position}
 import org.apache.geode.cache.Region
 import org.apache.geode.cache.client.ClientCache
 import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
@@ -9,6 +9,12 @@ import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
 class PositionCache(clientCache: ClientCache) extends GemfireRepository {
+
+  def getAggregatedPositions(acctKey: String, assetClass: String, date: String, currency: String): AggregatedPosition = {
+    val derivedPositions = getPositionsForAssetClass(acctKey, assetClass, date, currency)
+    AggregatedPosition(derivedPositions)
+  }
+
   def getPositionsForAssetClass(acctKey: String, assetClass: String, date: String, currency: String): Seq[DerivedPosition] = {
     val query = queryService.newQuery(
       """select p, fx
