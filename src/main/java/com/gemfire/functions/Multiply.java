@@ -12,6 +12,7 @@ public class Multiply implements Function {
     @Override
     public void execute(FunctionContext context) {
         Object arguments = context.getArguments();
+        System.out.println(arguments);
     }
 
     @Override

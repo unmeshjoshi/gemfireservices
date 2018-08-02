@@ -1,16 +1,21 @@
 package com.gemfire.repository
 
-import com.gemfire.connection.GemfireResository
+import com.gemfire.connection.GemfireRepository
+import com.gemfire.functions.Multiply
 import com.gemfire.model.Position
 import org.apache.geode.cache.Region
-import org.apache.geode.cache.query.{QueryService, SelectResults}
+import org.apache.geode.cache.client.ClientCache
+import org.apache.geode.cache.execute.FunctionService
+import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 
-class PositionCache extends GemfireResository {
-  def getPositionsForAssetClass(acctKey: String, assetClass:String, date: String, currency:String):java.util.List[Position] = {
-    val query = queryService.newQuery("select p, fx.fxRate from /Positions p, /FxRates fx where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3 and p.currency = fx.fromCurrency and fx.toCurrency = $4")
+class PositionCache(clientCache:ClientCache) extends GemfireRepository {
+  def getPositionsForAssetClass(acctKey: String, assetClass:String, date: String, currency:String):java.util.List[Struct] = {
+    FunctionService.registerFunction(new Multiply())
+
+    val query = queryService.newQuery("select p, (select fx.fxRate from /FxRates fx where p.currency = fx.fromCurrency and fx.toCurrency = $4) as fx from /Positions p where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3")
     val a = Array(new Integer(acctKey), date, assetClass, currency)
     val result = query.execute(a.asInstanceOf[Array[Object]])
-    result.asInstanceOf[SelectResults[Position]].asList()
+    result.asInstanceOf[SelectResults[Struct]].asList()
   }
 
   def getPositionsForAssetClass(acctKey: String, assetClass:String, date: String):java.util.List[Position] = {
