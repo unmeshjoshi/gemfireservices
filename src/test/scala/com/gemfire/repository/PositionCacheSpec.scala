@@ -1,9 +1,6 @@
 package com.gemfire.repository
 
-import java.util
-
-import com.gemfire.model.{FxRate, Position}
-import org.apache.geode.cache.query.Struct
+import com.gemfire.models.{FxRate, Position}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
@@ -20,38 +17,20 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     clearData()
   }
 
-  private def clearData() = {
-    positionCache.clear()
-    fxRateCache.clear()
-  }
-
   test("should get position for given date") {
-
     val positions: java.util.List[Position] = positionCache.getPositionsForDate(1.toString, "2018-01-28")
-
     assert(6 == positions.size)
-
   }
 
   test("should get position for assetClass and date") {
-
     val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
-
     assert(4 == positions.size)
   }
 
-  test("should get should multiply positions with fxrates") {
-
-    val positions: util.List[Struct] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28", "USD")
-
-
+  test("should multiply positions with FX rates") {
+    val positions = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28", "USD")
     assert(4 == positions.size)
-
   }
-
-  /**
-    *
-    */
 
   private def seedData(): Unit = {
     positionCache.add(new Position(1, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
@@ -62,8 +41,18 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     positionCache.add(new Position(1, "CURRENT", "9928894277", "EQUITY", "INVESTMENT", "26510", 9439, "555", 6710203, "INR", "2018-01-28"))
 
 
-    fxRateCache.add(new FxRate("USD", "AUS", 2, "2018-07-30"))
-    fxRateCache.add(new FxRate("USD", "INR", 2, "2018-07-30"))
-    fxRateCache.add(new FxRate("INR", "USD", 2, "2018-07-30"))
+    fxRateCache.add(new FxRate("USD", "AUS", 2, "2018-01-28"))
+    fxRateCache.add(new FxRate("USD", "INR", 2, "2018-01-28"))
+    fxRateCache.add(new FxRate("INR", "USD", 2, "2018-01-28"))
+
+    fxRateCache.add(new FxRate("USD", "USD", 1, "2018-01-28"))
+    fxRateCache.add(new FxRate("INR", "INR", 1, "2018-01-28"))
+    fxRateCache.add(new FxRate("AUS", "AUS", 1, "2018-01-28"))
   }
+
+  private def clearData(): Unit = {
+    positionCache.clear()
+    fxRateCache.clear()
+  }
+
 }

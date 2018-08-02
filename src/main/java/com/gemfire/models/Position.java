@@ -1,4 +1,4 @@
-package com.gemfire.model;
+package com.gemfire.models;
 
 public class Position {
     private Integer accountKey;
