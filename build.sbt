@@ -1,12 +1,28 @@
-name := "gemfireservices"
+import Settings._
 
-version := "0.1"
+lazy val aggregatedProjects: Seq[ProjectReference] = Seq(`functions`, `services`)
 
-scalaVersion := "2.12.4"
+val `gemfireservices` = project
+  .aggregate(aggregatedProjects: _*)
+  .enablePlugins(DeployApp, DockerPlugin)
+  .settings(defaultSettings: _*)
 
-resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
+lazy val `services` = project
+    .dependsOn(`functions`)
+  .enablePlugins(DeployApp)
+  .settings(
+    libraryDependencies ++= Dependencies.GemfireService
+  )
 
-// https://mvnrepository.com/artifact/org.apache.geode/geode-core
-libraryDependencies += "org.apache.geode" % "geode-core" % "1.0.0-incubating"
-libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.5"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
+lazy val `functions` = project
+  .enablePlugins(DeployApp)
+  .settings(
+    libraryDependencies ++= Dependencies.GemfireService
+  ).settings(defaultSettings: _*)
+
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(appendContentHash = false)
+assemblyJarName in assembly := "functions.jar"
+
+assemblyMergeStrategy in assembly := {
+  case x => MergeStrategy.first
+}

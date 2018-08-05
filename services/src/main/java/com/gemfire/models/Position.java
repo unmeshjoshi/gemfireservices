@@ -77,4 +77,8 @@ public class Position {
     public String getPositionDate() {
         return positionDate;
     }
+
+    public int calculateBalance() {
+        return balance * 2;
+    }
 }

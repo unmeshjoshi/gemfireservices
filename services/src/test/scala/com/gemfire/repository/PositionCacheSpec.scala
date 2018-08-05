@@ -1,6 +1,6 @@
 package com.gemfire.repository
 
-import com.gemfire.models.{DerivedPosition, FxRate, Position}
+import com.gemfire.models.{DerivedPosition, FxRate, JPositionCache, Position}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
@@ -13,6 +13,7 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
   before {
     seedData()
   }
+
   after {
     clearData()
   }
@@ -34,9 +35,14 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
 
   test("should aggregate on balance after FX conversion") {
     // /positions?assetClass=EQUITY&reportingCurrency=INR&date=2018-01-28&aggregate=AMOUNT
-    val aggregate = positionCache.getAggregatedPositions(1.toString, "EQUITY", "2018-01-28", "USD")
+    val aggregate = positionCache.getPositionsForAssetClassWithFxConversion(1.toString, "EQUITY", "2018-01-28", "USD")
     val expectedBalance = BigInt("2311129741")
-    assert(aggregate.balance == expectedBalance)
+    println(aggregate)
+  }
+
+  test("should call custom function with gemfire") {
+    val positions = new JPositionCache(clientCacheProvider.clientCache).getPositionsForAssetClass()
+    assert(4 == positions.size)
   }
 
   private def seedData(): Unit = {
