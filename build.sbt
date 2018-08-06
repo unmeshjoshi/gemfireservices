@@ -5,14 +5,13 @@ lazy val aggregatedProjects: Seq[ProjectReference] = Seq(`functions`, `services`
 val `gemfireservices` = project
   .aggregate(aggregatedProjects: _*)
   .enablePlugins(DeployApp, DockerPlugin)
-  .settings(defaultSettings: _*)
 
 lazy val `services` = project
     .dependsOn(`functions`)
   .enablePlugins(DeployApp)
   .settings(
     libraryDependencies ++= Dependencies.GemfireService
-  )
+  ).settings(defaultSettings: _*)
 
 lazy val `functions` = project
   .enablePlugins(DeployApp)

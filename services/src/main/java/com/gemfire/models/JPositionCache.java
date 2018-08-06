@@ -7,7 +7,6 @@ import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
 
-import java.util.Collections;
 import java.util.List;
 
 public class JPositionCache {
@@ -20,14 +19,11 @@ public class JPositionCache {
         this.clientCache = clientCache;
     }
     //FIXME introduce query object for all getPosition* methods.
-    public List getPositionsForAssetClass() {
+    public int executeMultiplyOnGemfireServer(int x, int y) {
         Multiply function = new Multiply();
-
-        Execution execution = FunctionService.onServers(clientCache.getDefaultPool()).withArgs(new Object[]{100, 20});
+        Execution execution = FunctionService.onRegion(reg).withArgs(new Object[]{x, y});
         ResultCollector result = execution.execute(function);
-        System.out.println(result.getResult());
-
-        return Collections.EMPTY_LIST;
+        return (Integer)((List)result.getResult()).get(0);
     }
 }
 

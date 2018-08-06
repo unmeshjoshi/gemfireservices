@@ -46,8 +46,8 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
   }
 
   test("should call custom function with gemfire") {
-    val positions = new JPositionCache(clientCacheProvider.clientCache).getPositionsForAssetClass()
-    assert(4 == positions.size)
+    val result = new JPositionCache(clientCacheProvider.clientCache).executeMultiplyOnGemfireServer(10, 2)
+    assert(result == 20)
   }
 
   private def seedData(): Unit = {
@@ -79,5 +79,4 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     positionCache.clear()
     fxRateCache.clear()
   }
-
 }

@@ -18,9 +18,6 @@ public class Multiply implements Function {
         Object[] args = (Object[]) context.getArguments();
         Integer first = (Integer) args[0];
         Integer second = (Integer) args[1];
-
-
-
         rctx.getResultSender().lastResult(first * second);
     }
 
