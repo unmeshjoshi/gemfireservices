@@ -45,11 +45,6 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     println(aggregate)
   }
 
-  test("should call custom function with gemfire") {
-    val result = new JPositionCache(clientCacheProvider.clientCache).executeMultiplyOnGemfireServer(10, 2)
-    assert(result == 20)
-  }
-
   private def seedData(): Unit = {
     positionCache.add(new Position(1, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
     positionCache.add(new Position(1, "SAVING_PLUS", "9952388707", "EQUITY_PLUS", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
