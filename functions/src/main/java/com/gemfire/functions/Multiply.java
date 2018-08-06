@@ -16,11 +16,11 @@ public class Multiply implements Function {
         RegionFunctionContext rctx = (RegionFunctionContext)context;
         Region<Object, Object> dataSet = rctx.getDataSet();
         Object[] args = (Object[]) context.getArguments();
-
-        rctx.getFilter()
-
         Integer first = (Integer) args[0];
         Integer second = (Integer) args[1];
+
+
+
         rctx.getResultSender().lastResult(first * second);
     }
 

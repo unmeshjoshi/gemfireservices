@@ -32,3 +32,5 @@
     }
 }
 ```
+
+create index --name='l1Index' --expression='assetClassL1' --region='/Positions'

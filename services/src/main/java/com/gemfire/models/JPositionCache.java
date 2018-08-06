@@ -13,16 +13,17 @@ import java.util.List;
 public class JPositionCache {
 
     private final Region<String, Position> reg;
+    private ClientCache clientCache;
 
     public JPositionCache(ClientCache clientCache) {
         reg = clientCache.getRegion("Positions");
-
+        this.clientCache = clientCache;
     }
     //FIXME introduce query object for all getPosition* methods.
     public List getPositionsForAssetClass() {
         Multiply function = new Multiply();
 
-        Execution execution = FunctionService.onRegion(reg).withArgs(new Object[]{100, 20});
+        Execution execution = FunctionService.onServers(clientCache.getDefaultPool()).withArgs(new Object[]{100, 20});
         ResultCollector result = execution.execute(function);
         System.out.println(result.getResult());
 

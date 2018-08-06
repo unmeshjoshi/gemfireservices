@@ -8,7 +8,7 @@ import org.apache.geode.cache.client.ClientCache
 import org.apache.geode.cache.execute.{Execution, FunctionService}
 import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.collection.JavaConverters._
 
 class PositionCache(clientCache: ClientCache) extends GemfireRepository {
 
@@ -80,6 +80,14 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
     val query = queryService.newQuery("select * from /Positions p where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3")
     val a = Array(new Integer(acctKey), date, assetClass)
     val result = query.execute(a.asInstanceOf[Array[Object]])
+    result.asInstanceOf[SelectResults[Position]].asList()
+  }
+
+  def getPositionsForDate(acctKeys: List[Int], date: String): java.util.List[Position] = {
+    val query = queryService.newQuery("<TRACE> select * from /Positions p where p.accountKey in $1 and p.positionDate = $2")
+    val set = acctKeys.asJava.toArray
+    val params = Array(set, date)
+    val result = query.execute(params.asInstanceOf[Array[Object]])
     result.asInstanceOf[SelectResults[Position]].asList()
   }
 
