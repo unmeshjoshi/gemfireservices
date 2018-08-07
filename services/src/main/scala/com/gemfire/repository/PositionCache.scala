@@ -21,9 +21,10 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
   }
 
 
-
+  //TODO:This fails. Can not invoke custom functions from OQL
   def getPositionsForAssetClassWithFxConversion(acctKey: String, assetClass: String, date: String, currency: String) = {
     FunctionService.registerFunction(new Multiply())
+
     val query = queryService.newQuery(
       """select p, fx, MULT(p.balance, fx.fxRate) as valuation
         |from /Positions p, /FxRates fx
@@ -43,6 +44,7 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
       .map(p => p.get("valuation"))
       .toSeq
   }
+
   def getPositionsForAssetClass(acctKey: String, assetClass: String, date: String, currency: String): Seq[DerivedPosition] = {
     val query = queryService.newQuery(
       """select p, fx

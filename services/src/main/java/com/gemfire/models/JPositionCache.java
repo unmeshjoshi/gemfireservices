@@ -18,8 +18,8 @@ public class JPositionCache {
         reg = clientCache.getRegion("Positions");
         this.clientCache = clientCache;
     }
-    //FIXME introduce query object for all getPosition* methods.
-    public int executeMultiplyOnGemfireServer(int x, int y) {
+
+    public int multiplyOnServer(int x, int y) {
         Multiply function = new Multiply();
 
         Execution execution = FunctionService.onRegion(reg).withArgs(new Object[]{x, y});

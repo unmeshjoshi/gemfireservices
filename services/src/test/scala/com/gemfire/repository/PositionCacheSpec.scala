@@ -38,8 +38,8 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     assert(4 == positions.size)
   }
 
+  //TODO:This fails. Can not invoke custom functions from OQL
   test("should aggregate on balance after FX conversion") {
-    // /positions?assetClass=EQUITY&reportingCurrency=INR&date=2018-01-28&aggregate=AMOUNT
     val aggregate = positionCache.getPositionsForAssetClassWithFxConversion(1.toString, "EQUITY", "2018-01-28", "USD")
     val expectedBalance = BigInt("2311129741")
     println(aggregate)
