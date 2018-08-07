@@ -4,7 +4,7 @@ import com.util.Networks
 import org.apache.geode.cache.client.{ClientCache, ClientCacheFactory, ClientRegionShortcut}
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer
 
-class ClientCacheProvider {
+object ClientCacheProvider {
   val clientCache: ClientCache = createClientCache()
 
   private def createClientCache() = {

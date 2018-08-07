@@ -1,6 +1,7 @@
-package com.gemfire.models;
+package com.gemfire.repository;
 
 import com.gemfire.functions.Multiply;
+import com.gemfire.models.Position;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.execute.Execution;
@@ -21,7 +22,6 @@ public class JPositionCache {
 
     public int multiplyOnServer(int x, int y) {
         Multiply function = new Multiply();
-
         Execution execution = FunctionService.onRegion(reg).withArgs(new Object[]{x, y});
         ResultCollector result = execution.execute(function);
         return (Integer)((List)result.getResult()).get(0);

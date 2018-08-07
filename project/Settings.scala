@@ -6,9 +6,9 @@ import sbt._
 object Settings {
 
   val buildSettings = Seq(
-    organization := "org.dataservices",
-    organizationName := "example",
-    organizationHomepage := Some(url("http://www.example.org")),
+//    organization := "org.dataservices",
+//    organizationName := "example",
+//    organizationHomepage := Some(url("http://www.example.org")),
     version := Dependencies.Version,
     scalaVersion := Libs.ScalaVersion,
     crossPaths := true,

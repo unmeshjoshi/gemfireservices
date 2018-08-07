@@ -1,12 +1,11 @@
-package com.gemfire.repository
+package com.banking.financial.services
 
-import com.banking.financial.services.PositionRequest
-import com.gemfire.models.{DerivedPosition, FxRate, Position}
+import com.gemfire.models.{FxRate, Position}
+import com.gemfire.repository.{ClientCacheProvider, FxRatesCache, PositionCache}
 import org.scalatest.concurrent.Eventually
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with Eventually {
-
+class PositionServiceTest extends FunSuite with BeforeAndAfter with Matchers with Eventually {
   val positionCache = new PositionCache(ClientCacheProvider.clientCache)
   val fxRateCache = new FxRatesCache(ClientCacheProvider.clientCache)
 
@@ -18,32 +17,13 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     clearData()
   }
 
-  test("should get positions for multiple account keys") {
-    val positions: java.util.List[Position] = positionCache.getPositionsForDate(List(1, 2), "EQUITY", date = "2018-01-28")
-    assert(positions.size == 8)
+  test("should get paginated positions for given parameters") {
+    val positionService = new PositionService(positionCache)
+    val response = positionService.getPositions(PositionRequest())
+    assert(response.elements.size == 2)
+    assert(response.aggregation.balance == BigDecimal("3120514160"))
   }
 
-  test("should get position for given date") {
-    val positions: java.util.List[Position] = positionCache.getPositionsForDate(1.toString, "2018-01-28")
-    assert(6 == positions.size)
-  }
-
-  test("should get position for assetClass and date") {
-    val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
-    assert(4 == positions.size)
-  }
-
-  test("should multiply positions with FX rates") {
-    val request = PositionRequest(List(1), "EQUITY", "USD", "2018-01-28")
-    val positions: Seq[DerivedPosition] = positionCache.getPositionsForAssetClass(request)
-    assert(4 == positions.size)
-  }
-
-  test("should fail invoking custom function from OQL") {
-    assertThrows[org.apache.geode.cache.client.ServerOperationException] {
-      positionCache.getPositionsForAssetClassWithFxConversion(1.toString, "EQUITY", "2018-01-28", "USD")
-    }
-  }
 
   private def seedData(): Unit = {
     positionCache.add(new Position(1, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
@@ -62,12 +42,16 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     positionCache.add(new Position(2, "CURRENT", "9928894277", "EQUITY", "INVESTMENT", "26510", 9439, "555", 6710203, "INR", "2018-01-28"))
 
     fxRateCache.add(new FxRate("USD", "AUS", 2, "2018-01-28"))
+    fxRateCache.add(new FxRate("USD", "CAD", 2, "2018-01-28"))
     fxRateCache.add(new FxRate("USD", "INR", 2, "2018-01-28"))
     fxRateCache.add(new FxRate("INR", "USD", 2, "2018-01-28"))
+    fxRateCache.add(new FxRate("CAD", "INR", 2, "2018-01-28"))
 
     fxRateCache.add(new FxRate("USD", "USD", 1, "2018-01-28"))
     fxRateCache.add(new FxRate("INR", "INR", 1, "2018-01-28"))
     fxRateCache.add(new FxRate("AUS", "AUS", 1, "2018-01-28"))
+    fxRateCache.add(new FxRate("CAD", "CAD", 1, "2018-01-28"))
+
   }
 
   private def clearData(): Unit = {

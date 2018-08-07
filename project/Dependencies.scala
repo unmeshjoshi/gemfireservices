@@ -8,7 +8,6 @@ object Dependencies {
     Libs.`junit-interface` % Test,
     Libs.`mockito-core` % Test,
     Libs.`scalatest` % Test,
-    Libs.`geode` % Provided,
-    AkkaHttp.`akka-http`
+    Libs.`geode` % Provided
   )
 }
