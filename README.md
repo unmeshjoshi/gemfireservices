@@ -1,3 +1,15 @@
+
+### Setup Instruction
+* Download and unzip gemfire from https://network.pivotal.io/products/pivotal-gemfire to you machine (say /work/pivotal-gemfire-9.5.1)
+* export environment variable GEMFIRE_HOME to point to gemfire directory (e.g. export GEMFIRE_HOME=/work/pivotal-gemfire-9.5.1)
+* Clone this repository
+* Go to scripts directory and run ./startAll.sh. This will start gemfire with two locators and three servers. Also creates required regions.
+* Run tests from the repository.
+
+
+
+
+
 ### Request
 ```
 /positions?
@@ -32,5 +44,3 @@
     }
 }
 ```
-
-create index --name='l1Index' --expression='assetClassL1' --region='/Positions'
