@@ -1,19 +1,36 @@
 package com.gemfire.repository
 
+import java.util
+import java.util.List
+
 import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
 import com.gemfire.functions.Multiply
-import com.gemfire.models.{AggregatedPosition, DerivedPosition, FxRate, Position}
-import org.apache.geode.cache.Region
+import com.gemfire.models.{DerivedPosition, FxRate, Position}
 import org.apache.geode.cache.client.ClientCache
-import org.apache.geode.cache.execute.{Execution, FunctionService}
-import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
+import org.apache.geode.cache.execute.FunctionService
+import org.apache.geode.cache.query.{Query, QueryService, SelectResults, Struct}
+import org.apache.geode.cache.{Cache, CacheFactory, Region}
 
 import scala.collection.JavaConverters._
 
 class PositionCache(clientCache: ClientCache) extends GemfireRepository {
   val reg: Region[String, Position] = clientCache.getRegion("Positions")
   private val queryService: QueryService = clientCache.getQueryService()
+
+
+  def getPositionsWithGemfireFunction(): Unit = {
+    //    val execution = FunctionService.onRegion(reg).withArgs(Array[AnyRef](Array[Integer](100, 20), "USD"))
+    //    val positions = new GetValuatedPositions
+    //    val result = execution.execute(positions)
+    //    println(result.getResult.asInstanceOf[List[_]])
+    //  }
+    val cache: Cache = CacheFactory.getAnyInstance
+    val queryService: QueryService = cache.getQueryService
+    val query: Query = queryService.newQuery("select fx from /FxRates")
+    val structs: List[Struct] = (query.execute.asInstanceOf[SelectResults[Struct]]).asList
+    println(structs+ "+++++++++++++++++++++++++++++++")
+  }
 
   //TODO:This fails. Can not invoke custom functions from OQL
   def getPositionsForAssetClassWithFxConversion(acctKey: String, assetClass: String, date: String, currency: String) = {
@@ -59,17 +76,6 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
       .map(p => new DerivedPosition(p.get("p").asInstanceOf[Position], p.get("fx").asInstanceOf[FxRate]))
   }
 
-  //FIXME introduce query object for all getPosition* methods.
-  def getPositionsForAssetClass(acctKey: String, assetClass: String, date: String, currency: String, orderBy: String): Seq[Position] = {
-    FunctionService.registerFunction(new Multiply())
-
-    val execution = FunctionService.onRegion(reg).withArgs(100, 20)
-    val result = execution.execute("MULT")
-    println(result.getResult)
-
-    List()
-
-  }
 
   def getPositionsForAssetClass(acctKey: String, assetClass: String, date: String): java.util.List[Position] = {
     val query = queryService.newQuery("select * from /Positions p where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3")
@@ -80,10 +86,11 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
 
   def getPositionsForDate(acctKeys: List[Int], assetClass: String, date: String): java.util.List[Position] = {
     val query = queryService.newQuery("<TRACE> select * from /Positions p where p.accountKey in $1 and p.assetClassL1 = $2 and p.positionDate = $3")
-    val set = acctKeys.asJava.toArray
-    val params = Array(set, assetClass, date)
-    val result = query.execute(params.asInstanceOf[Array[Object]])
-    result.asInstanceOf[SelectResults[Position]].asList()
+//    val set = acctKeys.asJava.toArray
+//    val params = Array(set, assetClass, date)
+//    val result = query.execute(params.asInstanceOf[Array[Object]])
+//    result.asInstanceOf[SelectResults[Position]].asList()
+    new util.ArrayList[Position]()
   }
 
   def getPositionsForDate(acctKey: String, date: String): java.util.List[Position] = {

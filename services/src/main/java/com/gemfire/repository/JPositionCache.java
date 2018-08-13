@@ -1,5 +1,6 @@
 package com.gemfire.repository;
 
+import com.gemfire.functions.GetValuatedPositions;
 import com.gemfire.functions.Multiply;
 import com.gemfire.models.Position;
 import org.apache.geode.cache.Region;
@@ -26,5 +27,14 @@ public class JPositionCache {
         ResultCollector result = execution.execute(function);
         return (Integer)((List)result.getResult()).get(0);
     }
+
+
+    public void getPositionsWithGemfireFunction() {
+        Execution execution = FunctionService.onRegion(reg).withArgs(new Object[]{new Integer[]{100, 20}, "USD"});
+        GetValuatedPositions positions = new GetValuatedPositions();
+        ResultCollector result = execution.execute(positions);
+        System.out.println(((List)result.getResult()).get(0));
+    }
+
 }
 

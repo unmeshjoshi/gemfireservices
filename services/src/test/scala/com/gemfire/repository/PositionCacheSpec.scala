@@ -17,11 +17,11 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
   after {
     clearData()
   }
-
-  test("should get positions for multiple account keys") {
-    val positions: java.util.List[Position] = positionCache.getPositionsForDate(List(1, 2), "EQUITY", date = "2018-01-28")
-    assert(positions.size == 8)
-  }
+//
+//  test("should get positions for multiple account keys") {
+//    val positions: java.util.List[Position] = positionCache.getPositionsForDate(List(1, 2), "EQUITY", date = "2018-01-28")
+//    assert(positions.size == 8)
+//  }
 
   test("should get position for given date") {
     val positions: java.util.List[Position] = positionCache.getPositionsForDate(1.toString, "2018-01-28")
@@ -45,6 +45,10 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     }
   }
 
+  test("should get positions with server side function to apply fxrates") {
+    positionCache.getPositionsWithGemfireFunction()
+  }
+
   private def seedData(): Unit = {
     positionCache.add(new Position(1, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
     positionCache.add(new Position(1, "SAVING_PLUS", "9952388707", "EQUITY_PLUS", "CASH_EQUIVALANT", "92824", 4879, "444", 130134482, "INR", "2018-01-28"))
@@ -64,6 +68,7 @@ class PositionCacheSpec extends FunSuite with BeforeAndAfter with Matchers with 
     fxRateCache.add(new FxRate("USD", "AUS", 2, "2018-01-28"))
     fxRateCache.add(new FxRate("USD", "INR", 2, "2018-01-28"))
     fxRateCache.add(new FxRate("INR", "USD", 2, "2018-01-28"))
+    fxRateCache.add(new FxRate("AUS", "USD", 0.5, "2018-01-28"))
 
     fxRateCache.add(new FxRate("USD", "USD", 1, "2018-01-28"))
     fxRateCache.add(new FxRate("INR", "INR", 1, "2018-01-28"))

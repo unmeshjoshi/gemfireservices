@@ -32,10 +32,6 @@ class PositionService(positionCache: PositionCache) {
 
 
   def getPositions(positionRequest:PositionRequest): PositionResponse = {
-
-
-
-
     val positions: Seq[DerivedPosition] = positionCache.getPositionsForAssetClass(positionRequest)
     val sortedPositions = positions.sortBy(_.value)
     PositionResponse(sortedPositions.map(_.position).toList.take(positionRequest.pageSize), Aggregation(AggregatedPosition(positions).balance, 0), Page(positions.size, 10, 2))

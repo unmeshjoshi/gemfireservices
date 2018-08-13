@@ -3,13 +3,13 @@ package com.gemfire.models;
 public class FxRate {
     private String fromCurrency;
     private String toCurrency;
-    private int fxRate;
+    private double fxRate;
     private String forDate;
 
     public FxRate() {
     }
 
-    public FxRate(String fromCurrency, String toCurrency, int fxRate, String forDate) {
+    public FxRate(String fromCurrency, String toCurrency, double fxRate, String forDate) {
         this.fromCurrency = fromCurrency;
         this.toCurrency = toCurrency;
         this.fxRate = fxRate;
@@ -24,7 +24,7 @@ public class FxRate {
         return toCurrency;
     }
 
-    public int getFxRate() {
+    public double getFxRate() {
         return fxRate;
     }
 

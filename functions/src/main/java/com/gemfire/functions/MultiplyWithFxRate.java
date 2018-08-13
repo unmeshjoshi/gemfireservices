@@ -19,8 +19,6 @@ public class MultiplyWithFxRate implements Function {
         String acctKey = (String) args[0];
         Integer balanceInUSD = (Integer) args[0];
         String balanceCurrency = (String) args[1];
-
-
     }
 
     @Override

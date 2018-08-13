@@ -53,7 +53,8 @@ start_server "server1" 40404 8081
 start_server "server2" 40405 8083
 start_server "server3" 40406 8084
 
-create_region "Positions" "REPLICATE"
+create_region "Positions" "PARTITION"
 create_region "FxRates" "REPLICATE"
+create_region "MarketPrices" "REPLICATE"
 
 tail -f ./server1/server1.log ./server2/server2.log  ./server3/server3.log ./locator1/locator1.log ./locator2/locator2.log
