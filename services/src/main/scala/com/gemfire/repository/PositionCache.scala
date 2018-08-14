@@ -11,6 +11,10 @@ import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 
 import scala.collection.JavaConverters._
 
+/**
+  *
+  * FIXME: Position region is partitioned, so all oqls need to have 'distinct' in select criteria. Its not possible to clear region in test as well.
+  */
 class PositionCache(clientCache: ClientCache) extends GemfireRepository {
   val reg: Region[String, Position] = clientCache.getRegion("Positions")
   private val queryService: QueryService = clientCache.getQueryService()

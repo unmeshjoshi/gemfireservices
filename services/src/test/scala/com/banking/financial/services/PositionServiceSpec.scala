@@ -1,8 +1,8 @@
 package com.banking.financial.services
 
-import com.gemfire.test.FinancialCacheTest
+import com.gemfire.test.FinancialDataFixture
 
-class PositionServiceTest extends FinancialCacheTest {
+class PositionServiceSpec extends FinancialDataFixture {
   test("should get paginated positions for given parameters") {
     val positionService = new PositionService(positionCache)
     val response = positionService.getPositions(PositionRequest())

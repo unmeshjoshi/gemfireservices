@@ -2,25 +2,9 @@ package com.gemfire.repository
 
 import com.banking.financial.services.PositionRequest
 import com.gemfire.models.{DerivedPosition, Position}
-import com.gemfire.test.FinancialCacheTest
-import org.scalatest.concurrent.Eventually
-import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import com.gemfire.test.FinancialDataFixture
 
-class PositionCacheSpec extends FunSuite with Matchers with Eventually with BeforeAndAfter {
-  
-  val positionCache = new PositionCache(ClientCacheProvider.clientCache)
-  val fxRateCache = new FxRatesCache(ClientCacheProvider.clientCache)
-  val marketPriceCache: MarketPriceCache = new MarketPriceCache(ClientCacheProvider.clientCache)
-  val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache)
-
-  before {
-    dataGenerator.seedData()
-  }
-
-  after {
-    dataGenerator.clearData()
-  }
-
+class PositionCacheSpec extends FinancialDataFixture {
   test("should get positions for multiple account keys") {
     val positions: java.util.List[Position] = positionCache.getPositionsForDate(List(1, 2), "EQUITY", date = "2018-01-28")
     assert(positions.size == 8)
