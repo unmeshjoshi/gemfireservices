@@ -34,8 +34,11 @@ public class FxRate {
         return forDate;
     }
 
-
     public String key() {
-        return getFromCurrency() + "_" + getToCurrency();
+        return keyFrom(this.getFromCurrency(), this.getToCurrency());
+    }
+
+    public static String keyFrom(String fromCurrency, String toCurrency) {
+        return fromCurrency + "_" + toCurrency;
     }
 }

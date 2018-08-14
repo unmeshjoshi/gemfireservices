@@ -32,8 +32,13 @@ create_region() {
  $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type"
 }
 
-configure_pdx_read_serialized() {
- $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --read-serialized=true"
+#configure_pdx_read_serialized() {
+# $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --read-serialized=true"
+#}
+
+configure_pdx_auto_serializable() {
+# $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --read-serialized=true"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --auto-serializable-classes=com.gemfire.models.*"
 }
 
 get_default_ip
@@ -45,13 +50,14 @@ echo $(dir $target_dir)
 
 start_locator "locator1" 9009
 
-start_locator "locator2" 9010
+#start_locator "locator2" 9010
 
-configure_pdx_read_serialized
+#configure_pdx_read_serialized
+configure_pdx_auto_serializable
 
 start_server "server1" 40404 8081
-start_server "server2" 40405 8083
-start_server "server3" 40406 8084
+#start_server "server2" 40405 8083
+#start_server "server3" 40406 8084
 
 create_region "Positions" "PARTITION"
 create_region "FxRates" "REPLICATE"

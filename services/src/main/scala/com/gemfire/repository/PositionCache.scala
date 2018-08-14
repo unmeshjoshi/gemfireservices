@@ -16,15 +16,15 @@ import scala.collection.JavaConverters._
   * FIXME: Position region is partitioned, so all oqls need to have 'distinct' in select criteria. Its not possible to clear region in test as well.
   */
 class PositionCache(clientCache: ClientCache) extends GemfireRepository {
-  val reg: Region[String, Position] = clientCache.getRegion("Positions")
+  val positionRegion: Region[String, Position] = clientCache.getRegion("Positions")
   private val queryService: QueryService = clientCache.getQueryService()
 
 
   def getPositionsWithGemfireFunction(): Unit = {
-    val accountKeys = Array[Integer](100, 20)
-    val reportingCurrency = "USD"
+    val accountKeys = Array[Integer](1, 2)
+    val reportingCurrency = "INR"
 
-    val execution = FunctionService.onRegion(reg).withArgs(Array[AnyRef](accountKeys, reportingCurrency))
+    val execution = FunctionService.onRegion(positionRegion).withArgs(Array[AnyRef](accountKeys, reportingCurrency))
     val positions = new GetValuatedPositions
     val result = execution.execute(positions)
     println(result.getResult.asInstanceOf[java.util.List[_]])
@@ -103,10 +103,10 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
   }
 
   def add = (position: Position) => {
-    reg.put(position.key(), position)
+    positionRegion.put(position.key(), position)
   }
 
-  def get = (id: String) => reg.get(id)
+  def get = (id: String) => positionRegion.get(id)
 
   //test helper to clear cache
   override def clear(): Unit = {
