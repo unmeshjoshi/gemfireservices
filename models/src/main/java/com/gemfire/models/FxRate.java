@@ -1,15 +1,17 @@
 package com.gemfire.models;
 
+import java.math.BigDecimal;
+
 public class FxRate {
     private String fromCurrency;
     private String toCurrency;
-    private double fxRate;
+    private BigDecimal fxRate;
     private String forDate;
 
     public FxRate() {
     }
 
-    public FxRate(String fromCurrency, String toCurrency, double fxRate, String forDate) {
+    public FxRate(String fromCurrency, String toCurrency, BigDecimal fxRate, String forDate) {
         this.fromCurrency = fromCurrency;
         this.toCurrency = toCurrency;
         this.fxRate = fxRate;
@@ -24,11 +26,16 @@ public class FxRate {
         return toCurrency;
     }
 
-    public double getFxRate() {
+    public BigDecimal getFxRate() {
         return fxRate;
     }
 
     public String getForDate() {
         return forDate;
+    }
+
+
+    public String key() {
+        return getFromCurrency() + "_" + getToCurrency();
     }
 }

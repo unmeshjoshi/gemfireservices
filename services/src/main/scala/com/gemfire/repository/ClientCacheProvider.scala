@@ -14,6 +14,7 @@ object ClientCacheProvider {
       .create()
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions")
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("FxRates")
+    clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("MarketPrices")
     clientCache
   }
 }

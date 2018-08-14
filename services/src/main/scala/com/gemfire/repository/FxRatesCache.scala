@@ -23,7 +23,7 @@ class FxRatesCache(clientCache: ClientCache) extends GemfireRepository {
   private val queryService: QueryService = clientCache.getQueryService()
 
   def add(fxRate: FxRate): FxRate = {
-    reg.put(fxRate.hashCode().toString, fxRate)
+    reg.put(fxRate.key(), fxRate)
   }
 
   def get = (id: String) => reg.get(id)

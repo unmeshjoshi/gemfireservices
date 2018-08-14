@@ -1,5 +1,7 @@
 package com.gemfire.models;
 
+import java.math.BigDecimal;
+
 public class Position {
     private Integer accountKey;
     private String accountType;
@@ -9,11 +11,11 @@ public class Position {
     private String securityId;
     private Integer quantity;
     private String accountGroupId;
-    private Integer balance;
+    private BigDecimal balance;
     private String currency;
     private String positionDate;
 
-    public Position(Integer accountKey, String accountType, String accountNumber, String assetClassL1, String assetClassL2, String securityId, Integer quantity, String accountGroupId, Integer balance, String currency, String positionDate) {
+    public Position(Integer accountKey, String accountType, String accountNumber, String assetClassL1, String assetClassL2, String securityId, Integer quantity, String accountGroupId, BigDecimal balance, String currency, String positionDate) {
         this.accountKey = accountKey;
         this.accountType = accountType;
         this.accountNumber = accountNumber;
@@ -66,7 +68,7 @@ public class Position {
         return accountGroupId;
     }
 
-    public Integer getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
@@ -79,6 +81,6 @@ public class Position {
     }
 
     public int calculateBalance() {
-        return balance * 2;
+        return balance.multiply(BigDecimal.valueOf(2)).intValue();
     }
 }

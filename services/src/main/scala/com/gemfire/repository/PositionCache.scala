@@ -1,16 +1,13 @@
 package com.gemfire.repository
 
-import java.util
-import java.util.List
-
 import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
-import com.gemfire.functions.Multiply
+import com.gemfire.functions.{GetValuatedPositions, Multiply}
 import com.gemfire.models.{DerivedPosition, FxRate, Position}
+import org.apache.geode.cache.Region
 import org.apache.geode.cache.client.ClientCache
 import org.apache.geode.cache.execute.FunctionService
-import org.apache.geode.cache.query.{Query, QueryService, SelectResults, Struct}
-import org.apache.geode.cache.{Cache, CacheFactory, Region}
+import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 
 import scala.collection.JavaConverters._
 
@@ -20,16 +17,13 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
 
 
   def getPositionsWithGemfireFunction(): Unit = {
-    //    val execution = FunctionService.onRegion(reg).withArgs(Array[AnyRef](Array[Integer](100, 20), "USD"))
-    //    val positions = new GetValuatedPositions
-    //    val result = execution.execute(positions)
-    //    println(result.getResult.asInstanceOf[List[_]])
-    //  }
-    val cache: Cache = CacheFactory.getAnyInstance
-    val queryService: QueryService = cache.getQueryService
-    val query: Query = queryService.newQuery("select fx from /FxRates")
-    val structs: List[Struct] = (query.execute.asInstanceOf[SelectResults[Struct]]).asList
-    println(structs+ "+++++++++++++++++++++++++++++++")
+    val accountKeys = Array[Integer](100, 20)
+    val reportingCurrency = "USD"
+
+    val execution = FunctionService.onRegion(reg).withArgs(Array[AnyRef](accountKeys, reportingCurrency))
+    val positions = new GetValuatedPositions
+    val result = execution.execute(positions)
+    println(result.getResult.asInstanceOf[java.util.List[_]])
   }
 
   //TODO:This fails. Can not invoke custom functions from OQL
@@ -58,7 +52,7 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
 
   def getPositionsForAssetClass(positionRequest: PositionRequest): Seq[DerivedPosition] = {
     val query = queryService.newQuery(
-      """select p, fx
+      """select distinct p, fx
         |from /Positions p, /FxRates fx
         |where p.accountKey in $1
         |and p.positionDate = $2
@@ -78,23 +72,22 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
 
 
   def getPositionsForAssetClass(acctKey: String, assetClass: String, date: String): java.util.List[Position] = {
-    val query = queryService.newQuery("select * from /Positions p where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3")
+    val query = queryService.newQuery("select distinct * from /Positions p where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3")
     val a = Array(new Integer(acctKey), date, assetClass)
     val result = query.execute(a.asInstanceOf[Array[Object]])
     result.asInstanceOf[SelectResults[Position]].asList()
   }
 
   def getPositionsForDate(acctKeys: List[Int], assetClass: String, date: String): java.util.List[Position] = {
-    val query = queryService.newQuery("<TRACE> select * from /Positions p where p.accountKey in $1 and p.assetClassL1 = $2 and p.positionDate = $3")
-//    val set = acctKeys.asJava.toArray
-//    val params = Array(set, assetClass, date)
-//    val result = query.execute(params.asInstanceOf[Array[Object]])
-//    result.asInstanceOf[SelectResults[Position]].asList()
-    new util.ArrayList[Position]()
+    val query = queryService.newQuery("<TRACE> select distinct * from /Positions p where p.accountKey in $1 and p.assetClassL1 = $2 and p.positionDate = $3")
+    val set = acctKeys.asJava.toArray
+    val params = Array(set, assetClass, date)
+    val result = query.execute(params.asInstanceOf[Array[Object]])
+    result.asInstanceOf[SelectResults[Position]].asList()
   }
 
   def getPositionsForDate(acctKey: String, date: String): java.util.List[Position] = {
-    val query = queryService.newQuery("select * from /Positions p where p.accountKey = $1 and p.positionDate = $2")
+    val query = queryService.newQuery("select distinct * from /Positions p where p.accountKey = $1 and p.positionDate = $2")
     val a = Array(new Integer(acctKey), date)
     val result = query.execute(a.asInstanceOf[Array[Object]])
     result.asInstanceOf[SelectResults[Position]].asList()
@@ -113,6 +106,6 @@ class PositionCache(clientCache: ClientCache) extends GemfireRepository {
 
   //test helper to clear cache
   override def clear(): Unit = {
-    reg.clear()
+//    reg.clear() //TODO: Unsupported on partitioned region
   }
 }
