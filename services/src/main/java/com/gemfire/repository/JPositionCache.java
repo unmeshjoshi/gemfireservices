@@ -3,8 +3,8 @@ package com.gemfire.repository;
 import com.gemfire.functions.GetValuatedPositions;
 import com.gemfire.functions.Multiply;
 import com.gemfire.models.Position;
+import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
-import org.apache.geode.cache.client.ClientCache;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
 import org.apache.geode.cache.execute.ResultCollector;
@@ -14,9 +14,9 @@ import java.util.List;
 public class JPositionCache {
 
     private final Region<String, Position> reg;
-    private ClientCache clientCache;
+    private GemFireCache clientCache;
 
-    public JPositionCache(ClientCache clientCache) {
+    public JPositionCache(GemFireCache clientCache) {
         reg = clientCache.getRegion("Positions");
         this.clientCache = clientCache;
     }

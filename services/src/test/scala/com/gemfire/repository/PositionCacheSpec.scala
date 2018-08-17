@@ -1,7 +1,9 @@
 package com.gemfire.repository
 
+import java.util
+
 import com.banking.financial.services.PositionRequest
-import com.gemfire.models.{DerivedPosition, Position}
+import com.gemfire.models.{DerivedPosition, Position, ValuatedPosition}
 import com.gemfire.test.FinancialDataFixture
 
 class PositionCacheSpec extends FinancialDataFixture {
@@ -33,6 +35,7 @@ class PositionCacheSpec extends FinancialDataFixture {
   }
 
   test("should get positions with server side function to apply fxrates") {
-    positionCache.getPositionsWithGemfireFunction()
+    val positions: List[ValuatedPosition] = positionCache.getPositionsWithGemfireFunction()
+    assert(12 == positions.size)
   }
 }

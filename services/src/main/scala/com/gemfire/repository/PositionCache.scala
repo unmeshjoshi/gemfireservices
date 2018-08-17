@@ -1,10 +1,12 @@
 package com.gemfire.repository
 
+import java.util
+
 import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
 import com.gemfire.functions.{GetValuatedPositions, Multiply}
-import com.gemfire.models.{DerivedPosition, FxRate, Position}
-import org.apache.geode.cache.Region
+import com.gemfire.models.{DerivedPosition, FxRate, Position, ValuatedPosition}
+import org.apache.geode.cache.{Cache, GemFireCache, Region}
 import org.apache.geode.cache.client.ClientCache
 import org.apache.geode.cache.execute.FunctionService
 import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
@@ -15,19 +17,22 @@ import scala.collection.JavaConverters._
   *
   * FIXME: Position region is partitioned, so all oqls need to have 'distinct' in select criteria. Its not possible to clear region in test as well.
   */
-class PositionCache(clientCache: ClientCache) extends GemfireRepository {
-  val positionRegion: Region[String, Position] = clientCache.getRegion("Positions")
-  private val queryService: QueryService = clientCache.getQueryService()
+class PositionCache(cache: GemFireCache) extends GemfireRepository {
+  val positionRegion: Region[String, Position] = cache.getRegion("Positions")
+  private val queryService: QueryService = cache.getQueryService()
 
 
-  def getPositionsWithGemfireFunction(): Unit = {
+  def getPositionsWithGemfireFunction():List[ValuatedPosition] = {
     val accountKeys = Array[Integer](1, 2)
     val reportingCurrency = "INR"
 
     val execution = FunctionService.onRegion(positionRegion).withArgs(Array[AnyRef](accountKeys, reportingCurrency))
     val positions = new GetValuatedPositions
-    val result = execution.execute(positions)
-    println(result.getResult.asInstanceOf[java.util.List[_]])
+    val result = execution.execute(positions).getResult.asInstanceOf[util.List[_]]
+    if (result.size() > 0)
+      result.get(0).asInstanceOf[java.util.List[ValuatedPosition]].asScala.toList
+    else
+      List()
   }
 
   //TODO:This fails. Can not invoke custom functions from OQL

@@ -2,12 +2,12 @@ package com.gemfire.repository
 
 import com.gemfire.connection.GemfireRepository
 import com.gemfire.models.{FxRate, Position}
-import org.apache.geode.cache.Region
+import org.apache.geode.cache.{GemFireCache, Region}
 import org.apache.geode.cache.client.ClientCache
 import org.apache.geode.cache.query.QueryService
 import org.apache.geode.cache.query.internal.ResultsBag
 
-class FxRatesCache(clientCache: ClientCache) extends GemfireRepository {
+class FxRatesCache(clientCache: GemFireCache) extends GemfireRepository {
   def getFxRates(fromCurrency: String, toCurrency: String, date: String): java.util.List[Position] = {
     val query = queryService.newQuery("select * from /FxRates fr where fr.fromCache = $1 and fr.toCache = $2 and fr.date = $3")
     val a: Array[AnyRef] = Array(fromCurrency, toCurrency, date)

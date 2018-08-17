@@ -1,13 +1,14 @@
 package com.gemfire.repository
 
 import com.util.Networks
+import org.apache.geode.cache.{Cache, GemFireCache}
 import org.apache.geode.cache.client.{ClientCache, ClientCacheFactory, ClientRegionShortcut}
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer
 
 object ClientCacheProvider {
-  val clientCache: ClientCache = createClientCache()
+  val clientCache: GemFireCache = createClientCache()
 
-  private def createClientCache() = {
+  private def createClientCache():GemFireCache = {
     val factory = new ClientCacheFactory()
     val clientCache = factory.addPoolLocator(new Networks().hostname(), 9009)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
