@@ -4,7 +4,7 @@ import java.util
 
 import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
-import com.gemfire.functions.{GetValuatedPositions, Multiply}
+import com.gemfire.functions.{Args, GetValuatedPositions, GetValuatedPositionsScala, Multiply}
 import com.gemfire.models.{DerivedPosition, FxRate, Position, ValuatedPosition}
 import org.apache.geode.cache.{Cache, GemFireCache, Region}
 import org.apache.geode.cache.client.ClientCache
@@ -23,11 +23,11 @@ class PositionCache(cache: GemFireCache) extends GemfireRepository {
 
 
   def getPositionsWithGemfireFunction():List[ValuatedPosition] = {
-    val accountKeys = Array[Integer](1, 2)
+    val accountKeys = Array[Int](1, 2)
     val reportingCurrency = "INR"
 
-    val execution = FunctionService.onRegion(positionRegion).withArgs(Array[AnyRef](accountKeys, reportingCurrency))
-    val positions = new GetValuatedPositions
+    val execution = FunctionService.onRegion(positionRegion).withArgs(Args(accountKeys, reportingCurrency, "assetClass1"))
+    val positions = new GetValuatedPositionsScala
     val result = execution.execute(positions).getResult.asInstanceOf[util.List[_]]
     if (result.size() > 0)
       result.get(0).asInstanceOf[java.util.List[ValuatedPosition]].asScala.toList
