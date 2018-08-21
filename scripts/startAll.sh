@@ -23,7 +23,7 @@ start_locator() {
 
 start_server() {
    local server_name=$1 server_port=$2 http_port=$3
-   $GEMFIRE_HOME/bin/gfsh start server --name=$server_name --locators="${default_ip}[9009],${default_ip}[9010]" --server-port=$server_port --J=-Dgemfire.http-port=$http_port #--classpath=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar
+   $GEMFIRE_HOME/bin/gfsh start server --name=$server_name --cache-xml-file=cache.xml --locators="${default_ip}[9009],${default_ip}[9010]" --server-port=$server_port --J=-Dgemfire.http-port=$http_port #--classpath=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar
    wait_tcp_port $default_ip $server_port
 }
 
@@ -33,7 +33,12 @@ $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "deploy --j
 
 create_region() {
  local region_name=$1 region_type=$2
- $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type"
+}
+
+create_all_events_region() {
+ local region_name=$1
+ $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
 }
 
 #configure_pdx_read_serialized() {
@@ -65,7 +70,7 @@ start_server "server3" 40406 8084
 
 deploy_functions
 
-create_region "Positions" "PARTITION"
+create_all_events_region "Positions"
 create_region "FxRates" "REPLICATE"
 create_region "MarketPrices" "REPLICATE"
 

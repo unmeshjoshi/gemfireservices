@@ -6,6 +6,13 @@ public class Position {
     private Integer accountKey;
     private String accountType;
     private String accountNumber;
+
+    private String ppCode;
+    private String subPpCode;
+    private String region;
+    private boolean isRealTime;
+    private String countryOfPurchase;
+
     private String assetClassL1;
     private String assetClassL2;
     private String securityId;

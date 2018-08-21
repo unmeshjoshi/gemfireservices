@@ -4,12 +4,11 @@ import java.util
 
 import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
-import com.gemfire.functions.{Args, GetValuatedPositions, GetValuatedPositionsScala, Multiply}
+import com.gemfire.functions.{Args, GetValuatedPositionsScala, Multiply}
 import com.gemfire.models.{DerivedPosition, FxRate, Position, ValuatedPosition}
-import org.apache.geode.cache.{Cache, GemFireCache, Region}
-import org.apache.geode.cache.client.ClientCache
 import org.apache.geode.cache.execute.FunctionService
 import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
+import org.apache.geode.cache.{GemFireCache, Region}
 
 import scala.collection.JavaConverters._
 
@@ -18,7 +17,9 @@ import scala.collection.JavaConverters._
   * FIXME: Position region is partitioned, so all oqls need to have 'distinct' in select criteria. Its not possible to clear region in test as well.
   */
 class PositionCache(cache: GemFireCache) extends GemfireRepository {
+
   val positionRegion: Region[String, Position] = cache.getRegion("Positions")
+
   private val queryService: QueryService = cache.getQueryService()
 
 

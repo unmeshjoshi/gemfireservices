@@ -4,7 +4,6 @@ import java.util.Properties
 
 import org.apache.geode.cache.{Cache, CacheFactory, RegionShortcut}
 import org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT
-import org.apache.geode.internal.cache.LocalRegion
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
