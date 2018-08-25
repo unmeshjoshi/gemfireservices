@@ -27,19 +27,26 @@ public class GetValuatedPositions implements Function {
         RegionFunctionContext rctx = (RegionFunctionContext) context;
         Region<Object, Position> positionRegion = rctx.getDataSet();
 
-        Object[] args = (Object[]) context.getArguments();
-        Integer[] acctKeys = (Integer[]) args[0];
-        String reportingCurrency = (String) args[1];
+        Args args = (Args) context.getArguments();
+        int[] acctKeys = args.acctKeys();
+        String reportingCurrency = args.reportingCurrency();
+
+
 
         List<ValuatedPosition> valuatedPositions = calculatePositions(rctx, positionRegion, acctKeys, reportingCurrency);
         rctx.getResultSender().lastResult(valuatedPositions);
     }
 
-    private List<ValuatedPosition> calculatePositions(RegionFunctionContext rctx, Region<Object, Position> positionRegion, Integer[] acctKeys, String reportingCurrency) {
+    private List<ValuatedPosition> calculatePositions(RegionFunctionContext rctx, Region<Object, Position> positionRegion, int[] acctKeys, String reportingCurrency) {
         Cache cache = CacheFactory.getAnyInstance();
 
         Region<Object, FxRate> fxRates = cache.getRegion("/FxRates");
         Region<Object, MarketPrice> marketPrices = cache.getRegion("/MarketPrices");
+
+        //pass member id to function
+        String member = "memberid";
+        Region<Object, List<String>> visibilityRegion = cache.getRegion("/Visibility");
+        List<String> visibleAccountKeys = visibilityRegion.get(member);
 
         try {
             List<ValuatedPosition> positionResult = new ArrayList<>();

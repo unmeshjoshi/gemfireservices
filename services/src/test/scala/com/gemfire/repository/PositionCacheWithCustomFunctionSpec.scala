@@ -2,6 +2,7 @@ package com.gemfire.repository
 
 import java.util.Properties
 
+import com.gemfire.loader.VisibilityLoader
 import org.apache.geode.cache.{Cache, CacheFactory, RegionShortcut}
 import org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer
@@ -34,6 +35,7 @@ class PositionCacheWithCustomFunctionSpec extends FunSuite with BeforeAndAfter w
     cache.createRegionFactory(RegionShortcut.PARTITION).create("Positions")
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("FxRates")
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("MarketPrices")
+    cache.createRegionFactory(RegionShortcut.REPLICATE).setCacheLoader(new VisibilityLoader()).create("Visibility")
     cache
   }
 }

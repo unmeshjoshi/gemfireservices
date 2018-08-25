@@ -41,6 +41,12 @@ create_all_events_region() {
  $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
 }
 
+#TODO refactor all these functions to take arguments
+create_demographic_region_with_loader() {
+ local region_name=$1
+ $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type --cache-loader=com.gemfire.eventhandlers.VisibilityLoader"
+}
+
 #configure_pdx_read_serialized() {
 # $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --read-serialized=true"
 #}
@@ -71,6 +77,7 @@ start_server "server3" 40406 8084
 deploy_functions
 
 create_all_events_region "Positions"
+create_demographic_region_with_loader "Visibility" "REPLICATE"
 create_region "FxRates" "REPLICATE"
 create_region "MarketPrices" "REPLICATE"
 
