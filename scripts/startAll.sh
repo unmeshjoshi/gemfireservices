@@ -17,13 +17,13 @@ get_default_ip() {
 
 start_locator() {
    local locator_name=$1 locator_port=$2
-   $GEMFIRE_HOME/bin/gfsh start locator --name=$locator_name --port=$locator_port --mcast-port=0 --locators="${default_ip}[$locator_port]" #--classpath=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar
+   $GEMFIRE_HOME/bin/gfsh start locator --properties-file=gemfire.properties --name=$locator_name --port=$locator_port --mcast-port=0 --locators="${default_ip}[$locator_port]" --classpath=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar
    wait_tcp_port $default_ip $locator_port
 }
 
 start_server() {
    local server_name=$1 server_port=$2 http_port=$3
-   $GEMFIRE_HOME/bin/gfsh start server --name=$server_name --cache-xml-file=cache.xml --locators="${default_ip}[9009],${default_ip}[9010]" --server-port=$server_port --J=-Dgemfire.http-port=$http_port #--classpath=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar
+   $GEMFIRE_HOME/bin/gfsh start server --properties-file=gemfire.properties --user=test --password=test --name=$server_name --cache-xml-file=cache.xml --locators="${default_ip}[9009],${default_ip}[9010]" --server-port=$server_port --J=-Dgemfire.http-port=$http_port --classpath=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar
    wait_tcp_port $default_ip $server_port
 }
 
@@ -33,18 +33,18 @@ $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "deploy --j
 
 create_region() {
  local region_name=$1 region_type=$2
- $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type"
 }
 
 create_all_events_region() {
  local region_name=$1
- $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
 }
 
 #TODO refactor all these functions to take arguments
 create_demographic_region_with_loader() {
  local region_name=$1
- $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type --cache-loader=com.gemfire.eventhandlers.VisibilityLoader"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type --cache-loader=com.gemfire.eventhandlers.VisibilityLoader"
 }
 
 #configure_pdx_read_serialized() {
@@ -53,7 +53,7 @@ create_demographic_region_with_loader() {
 
 configure_pdx_auto_serializable() {
 # $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --read-serialized=true"
- $GEMFIRE_HOME/bin/gfsh -e "connect --locator=${default_ip}[9009]" -e "configure pdx --auto-serializable-classes=com.gemfire.models.*"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "configure pdx --auto-serializable-classes=com.gemfire.models.*"
 }
 
 get_default_ip
@@ -70,11 +70,11 @@ start_locator "locator1" 9009
 #configure_pdx_read_serialized
 configure_pdx_auto_serializable
 
-start_server "server1" 40404 8081
-start_server "server2" 40405 8083
-start_server "server3" 40406 8084
+start_server "server1" 8085 8081
+start_server "server2" 8086 8083
+start_server "server3" 8087 8084
 
-deploy_functions
+#deploy_functions
 
 create_all_events_region "Positions"
 create_demographic_region_with_loader "Visibility" "REPLICATE"
