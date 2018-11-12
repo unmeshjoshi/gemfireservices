@@ -7,5 +7,10 @@
             <subscription-attributes interest-policy="cache-content"/>
         </region-attributes>
     </region>
+    <function-service>
+        <function>
+            <class-name>com.gemfire.functions.GetValuatedPositions</class-name>
+        </function>
+    </function-service>
 </cache>
 

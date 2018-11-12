@@ -10,11 +10,11 @@ import org.apache.geode.cache.{Cache, CacheFactory, Region}
 
 import scala.collection.JavaConverters._
 
-class GetValuatedPositionsScala extends Function {
+class GetValuatedPositionsScala extends Function[Position] {
   override def hasResult: Boolean = true
 
 
-  override def execute(context: FunctionContext): Unit = {
+  override def execute(context: FunctionContext[Position]): Unit = {
     val rctx: RegionFunctionContext = context.asInstanceOf[RegionFunctionContext]
     val positionRegion: Region[AnyRef, Position] = rctx.getDataSet[AnyRef, Position]
     val args: Args = context.getArguments.asInstanceOf[Args]

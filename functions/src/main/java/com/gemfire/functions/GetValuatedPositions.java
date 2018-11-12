@@ -6,17 +6,35 @@ import com.gemfire.models.Position;
 import com.gemfire.models.ValuatedPosition;
 import org.apache.geode.cache.Cache;
 import org.apache.geode.cache.CacheFactory;
+import org.apache.geode.cache.Declarable;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.cache.query.SelectResults;
+import org.apache.geode.internal.logging.LogService;
+import org.apache.geode.security.ResourcePermission;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-public class GetValuatedPositions implements Function {
+public class GetValuatedPositions implements Function, Declarable {
+
+    @Override
+    public Collection<ResourcePermission> getRequiredPermissions(String regionName) {
+        StringWriter writer = new StringWriter();
+        Exception e  = new Exception();
+        e.printStackTrace(new PrintWriter(writer));
+
+        LogService.getLogger().info("Getting permissions for " + writer.toString());
+        return Collections.singletonList(new ResourcePermission(ResourcePermission.Resource.DATA, ResourcePermission.Operation.READ, "financialservices"));
+    }
+
     @Override
     public boolean hasResult() {
         return true;
@@ -28,8 +46,8 @@ public class GetValuatedPositions implements Function {
         Region<Object, Position> positionRegion = rctx.getDataSet();
 
         Args args = (Args) context.getArguments();
-        int[] acctKeys = args.acctKeys();
-        String reportingCurrency = args.reportingCurrency();
+        int[] acctKeys = new int[]{1, 1};
+        String reportingCurrency = "USD";
 
 
 

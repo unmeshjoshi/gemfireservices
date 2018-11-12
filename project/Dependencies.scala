@@ -8,6 +8,7 @@ object Dependencies {
     Libs.`junit-interface` % Test,
     Libs.`mockito-core` % Test,
     Libs.`scalatest` % Test,
-    Libs.`geode` % Provided
+    Libs.`geode` % Provided,
+    Akka.`akka-stream`
   )
 }

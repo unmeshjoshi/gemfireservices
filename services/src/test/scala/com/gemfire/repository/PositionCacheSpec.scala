@@ -1,7 +1,5 @@
 package com.gemfire.repository
 
-import java.util
-
 import com.banking.financial.services.PositionRequest
 import com.gemfire.models.{DerivedPosition, Position, ValuatedPosition}
 import com.gemfire.test.FinancialDataFixture
