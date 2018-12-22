@@ -17,17 +17,12 @@ object ClientCacheProvider {
   val clientCache: GemFireCache = createClientCache()
 
   private def createClientCache():GemFireCache = {
-    val secProp = new Properties();
-    secProp.put("security-username","geode")
-    secProp.put("security-password", "geodePass")
-    secProp.put("security-client-auth-init", "com.gemfire.authorization.GemfireAuthenticator.create")
-
-    val factory = new ClientCacheFactory(secProp)
-//    val clientCache = factory.addPoolLocator(new Networks().hostname(), 9009)
+    val factory = new ClientCacheFactory()
     val clientCache = factory.addPoolLocator("127.0.0.1", 9009)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setPoolMinConnections(10)
-//      .setPoo
+
+      //      .setPoo
       .setPoolMaxConnections(10)
       .create()
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions")
