@@ -1,5 +1,8 @@
 package com.gemfire.models;
 
+import org.apache.geode.pdx.PdxReader;
+import org.apache.geode.pdx.PdxWriter;
+
 import java.math.BigDecimal;
 
 public class FxRate {
@@ -40,5 +43,17 @@ public class FxRate {
 
     public static String keyFrom(String fromCurrency, String toCurrency) {
         return fromCurrency + "_" + toCurrency;
+    }
+
+//    @Override
+    public void toData(PdxWriter writer) {
+        writer.writeString("fromCurrency",fromCurrency);
+        writer.writeString("toCurrency",toCurrency);
+        writer.writeObject("fxRate",fxRate);
+        writer.writeString("forDate",forDate);
+    }
+
+    public void fromData(PdxReader reader) {
+
     }
 }

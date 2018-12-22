@@ -1,5 +1,8 @@
 package com.gemfire.models;
 
+import org.apache.geode.pdx.PdxReader;
+import org.apache.geode.pdx.PdxWriter;
+
 import java.math.BigDecimal;
 
 public class Position {
@@ -7,11 +10,6 @@ public class Position {
     private String accountType;
     private String accountNumber;
 
-    private String ppCode;
-    private String subPpCode;
-    private String region;
-    private boolean isRealTime;
-    private String countryOfPurchase;
 
     private String assetClassL1;
     private String assetClassL2;
@@ -21,8 +19,11 @@ public class Position {
     private BigDecimal balance;
     private String currency;
     private String positionDate;
+    private FxRate rate = new FxRate("USD", "AUS", new java.math.BigDecimal(2), "2018-01-28");
 
-    public Position(Integer accountKey, String accountType, String accountNumber, String assetClassL1, String assetClassL2, String securityId, Integer quantity, String accountGroupId, BigDecimal balance, String currency, String positionDate) {
+    public Position() {}
+
+    public Position(Integer accountKey, String accountType, String accountNumber, String assetClassL1, String assetClassL2, String securityId, Integer quantity, String accountGroupId, BigDecimal balance, String currency, String positionDate)  {
         this.accountKey = accountKey;
         this.accountType = accountType;
         this.accountNumber = accountNumber;
@@ -34,9 +35,6 @@ public class Position {
         this.balance = balance;
         this.currency = currency;
         this.positionDate = positionDate;
-    }
-
-    public Position() {
     }
 
     public String key() {
@@ -89,5 +87,24 @@ public class Position {
 
     public int calculateBalance() {
         return balance.multiply(BigDecimal.valueOf(2)).intValue();
+    }
+
+    public void toData(PdxWriter writer) {
+        writer.writeInt("accountKey", this.accountKey);
+        writer.writeString("accountType", accountType);
+        writer.writeString("accountNumber", accountNumber);
+        writer.writeString("assetClassL1", assetClassL1);
+        writer.writeString("assetClassL2", assetClassL2);
+        writer.writeString("securityId", securityId);
+        writer.writeInt("quantity", quantity);
+        writer.writeString("accountGroupId", accountGroupId);
+        writer.writeObject("balance", balance);
+        writer.writeString("currency", currency);
+        writer.writeString("positionDate", positionDate);
+        writer.writeObject("fxRate", rate);
+    }
+
+    public void fromData(PdxReader reader) {
+
     }
 }

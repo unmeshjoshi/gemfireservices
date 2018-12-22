@@ -1,8 +1,13 @@
 import Settings._
 
+assembleArtifact in assemblyPackageScala := false
+
 lazy val aggregatedProjects: Seq[ProjectReference] = Seq(`models`, `functions`, `services`)
 lazy val `models` = project
   .enablePlugins(DeployApp)
+  .settings(
+    libraryDependencies ++= Dependencies.GemfireService
+  )
   .settings(defaultSettings: _*)
 
 lazy val `functions` = project

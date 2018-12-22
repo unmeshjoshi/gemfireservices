@@ -19,11 +19,21 @@ import org.apache.geode.security.ResourcePermission;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class GetValuatedPositions implements Function, Declarable {
+
+    private void time(Runnable runnable) {
+        long start = System.nanoTime();
+        runnable.run();
+        long end = System.nanoTime();
+        long timeTaken = TimeUnit.NANOSECONDS.toMillis(end - start);
+        LogService.getLogger().info("Time taken for function execution is " + timeTaken + " ");
+    }
 
     @Override
     public Collection<ResourcePermission> getRequiredPermissions(String regionName) {
@@ -42,17 +52,18 @@ public class GetValuatedPositions implements Function, Declarable {
 
     @Override
     public void execute(FunctionContext context) {
-        RegionFunctionContext rctx = (RegionFunctionContext) context;
-        Region<Object, Position> positionRegion = rctx.getDataSet();
+        time(() -> {
+            RegionFunctionContext rctx = (RegionFunctionContext) context;
+            Region<Object, Position> positionRegion = rctx.getDataSet();
 
-        Args args = (Args) context.getArguments();
-        int[] acctKeys = new int[]{1, 1};
-        String reportingCurrency = "USD";
+            Args args = (Args) context.getArguments();
+            int[] acctKeys = new int[]{1, 1};
+            String reportingCurrency = "USD";
 
 
-
-        List<ValuatedPosition> valuatedPositions = calculatePositions(rctx, positionRegion, acctKeys, reportingCurrency);
-        rctx.getResultSender().lastResult(valuatedPositions);
+            List<ValuatedPosition> valuatedPositions = calculatePositions(rctx, positionRegion, acctKeys, reportingCurrency);
+            rctx.getResultSender().lastResult(valuatedPositions);
+        });
     }
 
     private List<ValuatedPosition> calculatePositions(RegionFunctionContext rctx, Region<Object, Position> positionRegion, int[] acctKeys, String reportingCurrency) {
@@ -64,7 +75,7 @@ public class GetValuatedPositions implements Function, Declarable {
         //pass member id to function
         String member = "memberid";
         Region<Object, List<String>> visibilityRegion = cache.getRegion("/Visibility");
-        List<String> visibleAccountKeys = visibilityRegion.get(member);
+        Collection<List<String>> visibleAccountKeys = visibilityRegion.getAll(Arrays.asList(member, "1", "2", "3", "4")).values();
 
         try {
             List<ValuatedPosition> positionResult = new ArrayList<>();

@@ -9,6 +9,5 @@ object Dependencies {
     Libs.`mockito-core` % Test,
     Libs.`scalatest` % Test,
     Libs.`geode` % Provided,
-    Akka.`akka-stream`
   )
 }

@@ -1,30 +1,31 @@
 package com.gemfire.repository
 
+import java.io.{ByteArrayOutputStream, DataOutputStream}
 import java.util.Properties
 
 import com.gemfire.authorization.OnlyFunctionCallsSecurityManager
 import com.gemfire.loader.VisibilityLoader
-import org.apache.geode.cache.{Cache, CacheFactory, CacheLoader, RegionShortcut}
+import com.gemfire.models.Position
+import org.apache.geode.DataSerializer
+import org.apache.geode.cache.{CacheFactory, RegionShortcut}
 import org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer
-import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import org.apache.geode.pdx.internal.{PdxWriterImpl, TypeRegistry}
+import org.scalatest.FunSuite
 
-class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers  {
+class SerializationSpec extends FunSuite {
 
-  test("should get valuated positions with custom gemfire function") {
-    val cache: Cache = createCache
+  test("measure serialialization size") {
+    createCache
 
-    val positionCache = new PositionCache(cache)
-    val fxRateCache = new FxRatesCache(cache)
-    val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
-    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache)
-
-    dataGenerator.seedData()
-
-    val positions = positionCache.getPositionsWithGemfireFunction()
-
-    assert(12 == positions.size)
+    TypeRegistry.setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
+    val position = new Position(2, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482), "INR", "2018-01-28")
+    val stream = new ByteArrayOutputStream()
+    DataSerializer.writeObject(position, new DataOutputStream(stream), false)
+    println(stream.toByteArray.size)
   }
+
+
 
   private def createCache = {
     val props = new Properties()
@@ -33,8 +34,8 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers  {
 
     val factory = new CacheFactory(props)
     val cache = factory
-      .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setSecurityManager(new OnlyFunctionCallsSecurityManager())
+//      .setPdxSerializer(new ReflectionBasedAutoSerializer("com.*"))
       .create()
 
     cache.createRegionFactory(RegionShortcut.PARTITION).create("Positions")
@@ -43,4 +44,5 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers  {
     cache.createRegionFactory(RegionShortcut.PARTITION).setCacheLoader(new VisibilityLoader()).create("Visibility")
     cache
   }
+
 }

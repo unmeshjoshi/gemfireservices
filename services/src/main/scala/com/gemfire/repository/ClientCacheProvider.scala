@@ -26,6 +26,9 @@ object ClientCacheProvider {
 //    val clientCache = factory.addPoolLocator(new Networks().hostname(), 9009)
     val clientCache = factory.addPoolLocator("127.0.0.1", 9009)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
+      .setPoolMinConnections(10)
+//      .setPoo
+      .setPoolMaxConnections(10)
       .create()
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions")
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("FxRates")

@@ -1,8 +1,11 @@
 package com.gemfire.repository
 
+import java.util.concurrent.TimeUnit
+
 import com.banking.financial.services.PositionRequest
 import com.gemfire.models.{DerivedPosition, Position, ValuatedPosition}
 import com.gemfire.test.FinancialDataFixture
+import org.scalatest.time.Nanoseconds
 
 class PositionCacheSpec extends FinancialDataFixture {
   test("should get positions for multiple account keys") {
@@ -32,8 +35,24 @@ class PositionCacheSpec extends FinancialDataFixture {
     }
   }
 
+  object Benchmark {
+    def time(callback: () => Unit) {
+      val startTime = System.nanoTime()
+      callback()
+      val endTime = System.nanoTime()
+      val timeTaken = TimeUnit.NANOSECONDS.toMillis((endTime - startTime))
+      println(s"${timeTaken} millis" )
+    }
+  }
+
   test("should get positions with server side function to apply fxrates") {
+
+    Benchmark.time(callFunction)
+    Benchmark.time(callFunction)
+
+  }
+
+  def callFunction() = {
     val positions: List[ValuatedPosition] = positionCache.getPositionsWithGemfireFunction()
-    assert(12 == positions.size)
   }
 }

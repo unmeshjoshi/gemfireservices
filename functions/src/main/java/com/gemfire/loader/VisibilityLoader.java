@@ -10,6 +10,7 @@ import java.util.List;
 public class VisibilityLoader implements CacheLoader {
     @Override
     public Object load(LoaderHelper helper) throws CacheLoaderException {
+        System.out.println("Loader called for " + helper);
         String memberId = (String) helper.getKey();
         VisibilityArgs additionalArguments = (VisibilityArgs) helper.getArgument();
 
