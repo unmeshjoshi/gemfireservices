@@ -6,6 +6,7 @@ import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
 import com.gemfire.functions.{Args, GetValuatedPositions, GetValuatedPositionsScala, Multiply}
 import com.gemfire.models.{DerivedPosition, FxRate, Position, ValuatedPosition}
+import com.util.Timer
 import org.apache.geode.cache.execute.{Execution, FunctionService}
 import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 import org.apache.geode.cache.{GemFireCache, Region}
@@ -25,6 +26,7 @@ class PositionCache(val
 
 
   def getPositionsWithGemfireFunction():List[ValuatedPosition] = {
+    Timer.timeWithResult(()⇒ {
     val accountKeys = Array[Int](1, 2)
     val reportingCurrency = "INR"
 
@@ -36,6 +38,7 @@ class PositionCache(val
       result.get(0).asInstanceOf[java.util.List[ValuatedPosition]].asScala.toList
     else
       List()
+    })
   }
 
   //TODO:This fails. Can not invoke custom functions from OQL

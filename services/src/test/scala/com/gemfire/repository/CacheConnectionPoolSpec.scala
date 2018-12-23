@@ -1,42 +1,41 @@
 package com.gemfire.repository
 
-import java.util.concurrent.TimeUnit
-
 import com.gemfire.models.ValuatedPosition
 import com.gemfire.test.FinancialDataFixture
+import com.util.Timer
 
 class CacheConnectionPoolSpec extends FinancialDataFixture {
 
   test("") {
 
-    val t1 = new Thread() {
+    val t1 = new Thread("first") {
       override def run(): Unit = {
         Timer.time(callFunction) //this call takes ~100 ms
         Timer.time(callFunction) // subsequent call takes ~50 ms
       }
     }
 
-    val t2 = new Thread() {
+    val t2 = new Thread("second") {
       override def run(): Unit = {
         Timer.time(callFunction) //~this call takes ~100ms
       }
     }
 
-    val t3 = new Thread() {
-      override def run(): Unit = {
-        Timer.time(callFunction) //~this call takes ~100ms
-      }
-    }
+    Thread.sleep(500) // wait for some time to get the connections freed..
+
+
+    Timer.time(callFunction) //~this call takes ~100ms
+    Timer.time(callFunction) //~this call takes ~50ms
+
+//    Thread.sleep(500) // wait for some time to get the connections freed..
+
 
     t1.start()
     t2.start()
-//
-    Thread.sleep(500) // wait for some time to get the connections freed..
-//
-    t3.start()
 
 
-    Thread.sleep(2000) // wait for 2 seconds. Join doesnt work in tests.
+
+  Thread.sleep(2000) // wait for 2 seconds. Join doesnt work in tests.
 
   }
 
@@ -45,13 +44,3 @@ class CacheConnectionPoolSpec extends FinancialDataFixture {
   }
 }
 
-
-object Timer {
-  def time(callback: () => Unit) {
-    val startTime = System.nanoTime()
-    callback()
-    val endTime = System.nanoTime()
-    val timeTaken = TimeUnit.NANOSECONDS.toMillis((endTime - startTime))
-    println(s"${timeTaken} millis in ${Thread.currentThread().getId}")
-  }
-}
