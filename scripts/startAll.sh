@@ -32,6 +32,11 @@ deploy_functions() {
 $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "deploy --jar=${target_dir}/functions-assembly-0.1-SNAPSHOT.jar"
 }
 
+create_partitioned_region() {
+ local region_name=$1 region_type=$2
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type --total-num-buckets=7"
+}
+
 create_region() {
  local region_name=$1 region_type=$2
  $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --type=$region_type"
@@ -39,7 +44,7 @@ create_region() {
 
 create_all_events_region() {
  local region_name=$1
- $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler --total-num-buckets=7"
 }
 
 #TODO refactor all these functions to take arguments
