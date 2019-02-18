@@ -114,6 +114,7 @@ class PositionCache(val
   }
 
   def add = (position: Position) => {
+    println(s"Adding position with key ${position.key()}")
     positionRegion.put(position.key(), position)
   }
 

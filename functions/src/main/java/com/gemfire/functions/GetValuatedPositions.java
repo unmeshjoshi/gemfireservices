@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class GetValuatedPositions implements Function, Declarable {
 
     private void time(Runnable runnable) {
+
         long start = System.nanoTime();
         runnable.run();
         long end = System.nanoTime();
@@ -35,7 +36,7 @@ public class GetValuatedPositions implements Function, Declarable {
         LogService.getLogger().info("Time taken for function execution is " + timeTaken + " ");
     }
 
-    @Override
+//    @Override
     public Collection<ResourcePermission> getRequiredPermissions(String regionName) {
         StringWriter writer = new StringWriter();
         Exception e  = new Exception();

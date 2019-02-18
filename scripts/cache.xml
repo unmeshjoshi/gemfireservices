@@ -2,7 +2,21 @@
 <cache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://geode.apache.org/schema/cache"
        xsi:schemaLocation="http://geode.apache.org/schema/cache http://geode.apache.org/schema/cache/cache-1.0.xsd"
        version="1.0" lock-lease="120" lock-timeout="60" search-timeout="300" is-server="false" copy-on-read="false">
-    <region name="InterestPolicyAllRegion" refid="PARTITION">
+    <disk-store name="SerializationDiskStore" compaction-threshold="40"
+                auto-compact="false" allow-force-compaction="true"
+                max-oplog-size="512" queue-size="10000"
+                time-interval="15" write-buffer-size="65536"
+                disk-usage-warning-percentage="80"
+                disk-usage-critical-percentage="99">
+        <disk-dirs>
+            <disk-dir>/tmp/SerializationDiskStore</disk-dir>
+            <disk-dir dir-size="20480">/tmp/SerializationDiskStore</disk-dir>
+        </disk-dirs>
+    </disk-store>
+    <pdx read-serialized="true"
+         persistent="true" disk-store-name="SerializationDiskStore">
+    </pdx>
+    <region name="InterestPolicyAllRegion" refid="PARTITION-PERSISTENT">
         <region-attributes>
             <subscription-attributes interest-policy="cache-content"/>
         </region-attributes>
@@ -12,5 +26,6 @@
             <class-name>com.gemfire.functions.GetValuatedPositions</class-name>
         </function>
     </function-service>
+
 </cache>
 

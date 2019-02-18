@@ -48,8 +48,8 @@ public class GemfireAuthenticator implements AuthInitialize {
     public void init(Properties props) {
 
     }
-
-    @Override
+//
+//    @Override
     public void initialize(Cache cache, Properties properties) {
 
     }

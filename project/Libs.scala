@@ -6,7 +6,7 @@ object Libs {
 
   val ScalaVersion = "2.11.8"
 
-  val `geode`  = "org.apache.geode" % "geode-core" % "1.6.0" 
+  val `geode`  = "org.apache.geode" % "geode-core" % "1.2.0"
   val `scalatest` = "org.scalatest" %% "scalatest" % "3.0.4" //Apache License 2.0
   val `scala-java8-compat` = "org.scala-lang.modules" %% "scala-java8-compat" % "0.8.0" //BSD 3-clause "New" or "Revised" License
   val `scala-async` = "org.scala-lang.modules" %% "scala-async" % "0.9.7" //BSD 3-clause "New" or "Revised" License

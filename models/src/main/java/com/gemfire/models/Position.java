@@ -1,11 +1,12 @@
 package com.gemfire.models;
 
 import org.apache.geode.pdx.PdxReader;
+import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 
 import java.math.BigDecimal;
 
-public class Position {
+public class Position implements PdxSerializable {
     private Integer accountKey;
     private String accountType;
     private String accountNumber;
@@ -102,7 +103,7 @@ public class Position {
         writer.writeString("currency", currency);
         writer.writeString("positionDate", positionDate);
         writer.writeObject("fxRate", rate);
-    }
+     }
 
     public void fromData(PdxReader reader) {
 

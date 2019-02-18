@@ -44,7 +44,7 @@ create_region() {
 
 create_all_events_region() {
  local region_name=$1
- $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler --total-num-buckets=7"
+ $GEMFIRE_HOME/bin/gfsh -e "connect --user=test --password=test --locator=${default_ip}[9009]" -e "create region --name=$region_name --template-region=/InterestPolicyAllRegion --cache-listener=com.gemfire.eventhandlers.CustomEventHandler"
 }
 
 #TODO refactor all these functions to take arguments
@@ -80,7 +80,7 @@ start_server "server1" 8085 8081
 start_server "server2" 8086 8083
 start_server "server3" 8087 8084
 
-deploy_functions
+#deploy_functions
 
 create_all_events_region "Positions"
 create_demographic_region_with_loader "Visibility" "REPLICATE"

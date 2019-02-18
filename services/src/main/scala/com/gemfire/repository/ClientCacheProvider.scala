@@ -18,15 +18,17 @@ object ClientCacheProvider {
 
   private def createClientCache():GemFireCache = {
     val factory = new ClientCacheFactory()
-    val clientCache = factory.addPoolLocator("127.0.0.1", 9009)
+    val clientCache = factory.addPoolLocator("172.17.0.2", 9009)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setPoolMinConnections(50)
+      .set("deploy-working-dir", "/tmp/gemfire_deploy_working_dir")
+
 //      .setPoolMaxConnections(-1) //unlimited
 //      .setPoolPRSingleHopEnabled(true)
 
      .create()
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions")
-    clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("FxRates")
+//    clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("FxRates")
     clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("MarketPrices")
     clientCache
   }

@@ -1,11 +1,12 @@
 package com.gemfire.models;
 
 import org.apache.geode.pdx.PdxReader;
+import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 
 import java.math.BigDecimal;
 
-public class FxRate {
+public class FxRate implements PdxSerializable {
     private String fromCurrency;
     private String toCurrency;
     private BigDecimal fxRate;
