@@ -1,16 +1,14 @@
 package com.gemfire.models;
 
 import org.apache.geode.pdx.PdxReader;
-import org.apache.geode.pdx.PdxSerializable;
 import org.apache.geode.pdx.PdxWriter;
 
 import java.math.BigDecimal;
 
-public class Position implements PdxSerializable {
+public class Position {
     private Integer accountKey;
-    private String accountType;
     private String accountNumber;
-
+    private PositionType accountType;
 
     private String assetClassL1;
     private String assetClassL2;
@@ -24,9 +22,8 @@ public class Position implements PdxSerializable {
 
     public Position() {}
 
-    public Position(Integer accountKey, String accountType, String accountNumber, String assetClassL1, String assetClassL2, String securityId, Integer quantity, String accountGroupId, BigDecimal balance, String currency, String positionDate)  {
+    public Position(Integer accountKey, PositionType accountType, String accountNumber, String assetClassL1, String assetClassL2, String securityId, Integer quantity, String accountGroupId, BigDecimal balance, String currency, String positionDate)  {
         this.accountKey = accountKey;
-        this.accountType = accountType;
         this.accountNumber = accountNumber;
         this.assetClassL1 = assetClassL1;
         this.assetClassL2 = assetClassL2;
@@ -36,6 +33,7 @@ public class Position implements PdxSerializable {
         this.balance = balance;
         this.currency = currency;
         this.positionDate = positionDate;
+        this.accountType = accountType;
     }
 
     public String key() {
@@ -46,7 +44,7 @@ public class Position implements PdxSerializable {
         return accountKey;
     }
 
-    public String getAccountType() {
+    public PositionType getAccountType() {
         return accountType;
     }
 
@@ -92,7 +90,7 @@ public class Position implements PdxSerializable {
 
     public void toData(PdxWriter writer) {
         writer.writeInt("accountKey", this.accountKey);
-        writer.writeString("accountType", accountType);
+        writer.writeObject("accountType", accountType.toString());
         writer.writeString("accountNumber", accountNumber);
         writer.writeString("assetClassL1", assetClassL1);
         writer.writeString("assetClassL2", assetClassL2);

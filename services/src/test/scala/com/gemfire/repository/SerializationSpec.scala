@@ -5,7 +5,7 @@ import java.util.Properties
 
 import com.gemfire.authorization.OnlyFunctionCallsSecurityManager
 import com.gemfire.loader.VisibilityLoader
-import com.gemfire.models.Position
+import com.gemfire.models.{Position, PositionType}
 import org.apache.geode.DataSerializer
 import org.apache.geode.cache.{CacheFactory, RegionShortcut}
 import org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT
@@ -19,7 +19,7 @@ class SerializationSpec extends FunSuite {
     createCache
 
     TypeRegistry.setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
-    val position = new Position(2, "SAVING", "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482), "INR", "2018-01-28")
+    val position = new Position(2, PositionType.SAVING, "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482), "INR", "2018-01-28")
     val stream = new ByteArrayOutputStream()
     DataSerializer.writeObject(position, new DataOutputStream(stream), false)
     println(stream.toByteArray.size)

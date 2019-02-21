@@ -21,7 +21,6 @@ object ClientCacheProvider {
     val clientCache = factory.addPoolLocator("172.17.0.2", 9009)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setPoolMinConnections(50)
-      .set("deploy-working-dir", "/tmp/gemfire_deploy_working_dir")
 
 //      .setPoolMaxConnections(-1) //unlimited
 //      .setPoolPRSingleHopEnabled(true)

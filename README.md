@@ -12,18 +12,24 @@
 * /pivotal-gemfire-9.1.0/bin/gfsh 
 * connect --locator=172.17.0.2[9009]
 * /pivotal-gemfire-9.1.0/bin/gfsh start server --name=server1 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --cache-xml-file=/pivotal-gemfire-9.1.0/config/cache.xml --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/logs/server1
-* create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7
+* 
   /pivotal-gemfire-9.1.0/bin/gfsh -e "connect --locator=172.17.0.2[9009]" -e "create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7" 
 create disk-store --name=PDX_TYPES --dir=/pdx/
 configure pdx --read-serialized=true
 configure pdx --disk-store=PDX_TYPES
+configure pdx --disk-store=DEFAULT
+create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7
 create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7
 
 docker run --name gemfire-server2 --hostname=server2 -v $(pwd)/logs/:/logs/ -it gemfireservices
 /pivotal-gemfire-9.1.0/bin/gfsh start server --name=server2 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --cache-xml-file=/pivotal-gemfire-9.1.0/config/cache.xml --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/logs/server2
 alter disk-store --name=PDX_POSITION --region=/PdxTypes --disk-dirs=/logs/server1/ --remove
 
+start locator --name=locator2 --port=9009 --mcast-port=0 --dir=/data/locator2 --locators=172.17.0.2[9009]
 
+gfsh -e "connect --locator=172.17.0.2[9009]" -e "describe config --member=locator1 --hide-defaults=false"
+
+docker exec -it <container name> /bin/bash
 ### Request
 ```
 /positions?
