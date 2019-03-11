@@ -63,7 +63,7 @@ class GetValuatedPositionsScala extends Function[Position] {
     })
   }
 
-  override def getId: String = "GetValuedPositions"
+  override def getId: String = "GetValuedPositionsScala"
 
   override def optimizeForWrite: Boolean = false
 

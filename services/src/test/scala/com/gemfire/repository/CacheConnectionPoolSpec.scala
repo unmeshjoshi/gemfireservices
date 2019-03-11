@@ -6,8 +6,9 @@ import com.util.Timer
 
 class CacheConnectionPoolSpec extends FinancialDataFixture {
 
-  test("") {
+  test("Call gemfire function") {
     println("data ingested")
+    callFunction()
 //    val t1 = new Thread("first") {
 //      override def run(): Unit = {
 //        Timer.time(callFunction) //this call takes ~100 ms

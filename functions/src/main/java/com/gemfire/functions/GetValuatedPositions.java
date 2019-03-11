@@ -19,7 +19,6 @@ import org.apache.geode.security.ResourcePermission;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +57,9 @@ public class GetValuatedPositions implements Function, Declarable {
             Region<Object, Position> positionRegion = rctx.getDataSet();
 
             Args args = (Args) context.getArguments();
+
+            LogService.getLogger().info("args = " + args);
+
             int[] acctKeys = new int[]{1, 1};
             String reportingCurrency = "USD";
 
@@ -75,8 +77,6 @@ public class GetValuatedPositions implements Function, Declarable {
 
         //pass member id to function
         String member = "memberid";
-        Region<Object, List<String>> visibilityRegion = cache.getRegion("/Visibility");
-        Collection<List<String>> visibleAccountKeys = visibilityRegion.getAll(Arrays.asList(member, "1", "2", "3", "4")).values();
 
         try {
             List<ValuatedPosition> positionResult = new ArrayList<>();
@@ -112,7 +112,7 @@ public class GetValuatedPositions implements Function, Declarable {
 
     @Override
     public String getId() {
-        return "GetValuedPositions";
+        return "GetValuedPositionsJava";
     }
 
     @Override

@@ -19,6 +19,8 @@ configure pdx --read-serialized=true
 configure pdx --disk-store=PDX_TYPES
 configure pdx --disk-store=DEFAULT
 create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7
+create region --name=FxRates --type=PARTITION_PERSISTENT --total-num-buckets=7
+
 create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7
 
 docker run --name gemfire-server2 --hostname=server2 -v $(pwd)/logs/:/logs/ -it gemfireservices

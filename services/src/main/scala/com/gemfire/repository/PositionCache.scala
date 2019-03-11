@@ -1,15 +1,19 @@
 package com.gemfire.repository
 
 import java.util
+import java.util.concurrent.TimeUnit
 
 import com.banking.financial.services.PositionRequest
 import com.gemfire.connection.GemfireRepository
-import com.gemfire.functions.{Args, GetValuatedPositions, GetValuatedPositionsScala, Multiply}
+import com.gemfire.functions.{Args, GetValuatedPositions, Multiply}
 import com.gemfire.models.{DerivedPosition, FxRate, Position, ValuatedPosition}
 import com.util.Timer
-import org.apache.geode.cache.execute.{Execution, FunctionService}
+import org.apache.geode.cache.execute.{Execution, FunctionService, ResultCollector}
 import org.apache.geode.cache.query.{QueryService, SelectResults, Struct}
 import org.apache.geode.cache.{GemFireCache, Region}
+import org.apache.geode.distributed.DistributedMember
+import org.apache.geode.internal.cache.execute.DefaultResultCollector
+import org.apache.geode.pdx.PdxInstance
 
 import scala.collection.JavaConverters._
 
@@ -24,20 +28,42 @@ class PositionCache(val
 
   private val queryService: QueryService = cache.getQueryService()
 
+  class CResultCollector extends ResultCollector[List[ValuatedPosition], List[ValuatedPosition]] {
+    var result = List[ValuatedPosition]()
+    override def getResult: List[ValuatedPosition] = {
+        result
+    }
 
-  def getPositionsWithGemfireFunction():List[ValuatedPosition] = {
-    Timer.timeWithResult(()⇒ {
-    val accountKeys = Array[Int](1, 2)
-    val reportingCurrency = "INR"
+    override def getResult(timeout: Long, unit: TimeUnit): List[ValuatedPosition] = {
+      result
+    }
 
-    val execution = FunctionService.onRegion(positionRegion)
+    override def addResult(memberID: DistributedMember, resultOfSingleExecution: List[ValuatedPosition]): Unit = {
+      this.result = resultOfSingleExecution
+    }
 
-    val positions = new GetValuatedPositions
-    val result = execution.execute(positions.getId).getResult.asInstanceOf[util.List[_]]
-    if (result.size() > 0)
-      result.get(0).asInstanceOf[java.util.List[ValuatedPosition]].asScala.toList
-    else
-      List()
+    override def endResults(): Unit = ???
+
+    override def clearResults(): Unit = ???
+  }
+
+  def getPositionsWithGemfireFunction(): List[ValuatedPosition] = {
+    Timer.timeWithResult(() ⇒ {
+      val accountKeys = Array[Int](1, 2)
+      val reportingCurrency = "INR"
+
+      val args = new Args(accountKeys, reportingCurrency, "agg")
+      val execution: Execution[Args,List[ValuatedPosition], List[ValuatedPosition]] =
+        FunctionService
+          .onRegion(positionRegion).asInstanceOf[Execution[Args, List[ValuatedPosition], List[ValuatedPosition]]]
+      execution.setArguments(args).withCollector(new CResultCollector())
+
+      val positions = new GetValuatedPositions
+      val result = execution.execute(positions.getId).getResult.asInstanceOf[util.List[_]]
+      if (result.size() > 0)
+        result.get(0).asInstanceOf[java.util.List[ValuatedPosition]].asScala.toList
+      else
+        List()
     })
   }
 
@@ -87,7 +113,7 @@ class PositionCache(val
 
 
   def getPositionsForAssetClass(acctKey: String, assetClass: String, date: String): java.util.List[Position] = {
-    val query = queryService.newQuery("select distinct * from /Positions p where p.accountKey = $1 and p.positionDate = $2 and p.assetClassL1 = $3")
+    val query = queryService.newQuery("select entry.value from /Positions.entries entry where entry.value.accountKey = $1 and entry.value.positionDate = $2 and entry.value.assetClassL1 = $3 limit 1")
     val a = Array(new Integer(acctKey), date, assetClass)
     val result = query.execute(a.asInstanceOf[Array[Object]])
     result.asInstanceOf[SelectResults[Position]].asList()
@@ -118,10 +144,10 @@ class PositionCache(val
     positionRegion.put(position.key(), position)
   }
 
-  def get = (id: String) => positionRegion.get(id)
+  def get = (id: String) => positionRegion.get(id).asInstanceOf[PdxInstance]
 
   //test helper to clear cache
   override def clear(): Unit = {
-//    reg.clear() //TODO: Unsupported on partitioned region
+    //    reg.clear() //TODO: Unsupported on partitioned region
   }
 }
