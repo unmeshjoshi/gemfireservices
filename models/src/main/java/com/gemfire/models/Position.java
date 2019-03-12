@@ -37,7 +37,7 @@ public class Position {
     }
 
     public String key() {
-        return accountKey + "_" + positionDate + "_" + hashCode();
+        return accountKey + "";
     }
 
     public Integer getAccountKey() {

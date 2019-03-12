@@ -25,7 +25,7 @@ public class JPositionCache {
     public int multiplyOnServer(int x, int y) {
         Multiply function = new Multiply();
         Execution execution = FunctionService.onRegion(reg).withArgs(new MultArgs(x, y));
-        ResultCollector result = execution.execute(function);
+        ResultCollector result = execution.execute(function.getId());
         return (Integer)((List)result.getResult()).get(0);
     }
 
