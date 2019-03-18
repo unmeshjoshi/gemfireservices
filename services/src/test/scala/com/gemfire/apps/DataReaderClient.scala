@@ -5,11 +5,10 @@ object DataReaderClient extends App {
   val positionCache = new PositionCache(ClientCacheProvider.clientCache)
   private val region = positionCache.positionRegion
 
-  private val oldPosition = positionCache.get("914_2018-01-28_13692003") // 30_2018-01-28_453398853
+  private val oldPosition = positionCache.get("28397") // 30_2018-01-28_453398853
 
-  positionCache.get("890_2018-01-28_1392570698") // 30_2018-01-28_453398853
+  positionCache.get("28398") // 30_2018-01-28_453398853
 
-  positionCache.get("891_2018-01-28_2008746677") // 30_2018-01-28_453398853
-  Thread.sleep(10000)
+  positionCache.get("28400") // 30_2018-01-28_453398853
   println(oldPosition)
 }

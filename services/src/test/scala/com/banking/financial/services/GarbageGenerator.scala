@@ -2,7 +2,8 @@ package com.banking.financial.services
 
 import scala.collection.mutable.ListBuffer
 
-object SimpleApp extends App {
+
+object GarbageGenerator extends App {
   val oldGenStrings = new ListBuffer[String]
   def generateGarbage() = {
     var buffer = new ListBuffer()

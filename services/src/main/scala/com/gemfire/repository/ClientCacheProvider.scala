@@ -18,7 +18,7 @@ object ClientCacheProvider {
 
   private def createClientCache():GemFireCache = {
     val factory = new ClientCacheFactory()
-    val clientCache = factory.addPoolLocator("172.17.0.2", 9009)
+    val clientCache = factory.addPoolLocator("172.17.0.5", 9009)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*,com.gemfire.functions.*"))
       .setPoolMinConnections(50)
 //      .setPdxReadSerialized(true)
