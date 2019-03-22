@@ -8,7 +8,8 @@ abstract class FinancialDataFixture extends FunSuite with BeforeAndAfter with Ma
   val positionCache = new PositionCache(ClientCacheProvider.clientCache)
   val fxRateCache = new FxRatesCache(ClientCacheProvider.clientCache)
   val marketPriceCache: MarketPriceCache = new MarketPriceCache(ClientCacheProvider.clientCache)
-  val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache)
+  val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+  val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
 
   before {
     dataGenerator.seedData()

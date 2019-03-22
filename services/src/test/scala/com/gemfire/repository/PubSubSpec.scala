@@ -14,7 +14,9 @@ class PubSubSpec extends FunSuite with BeforeAndAfter with Matchers  {
     val positionCache = new PositionCache(cache)
     val fxRateCache = new FxRatesCache(cache)
     val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
-    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache)
+    val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+
+    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
     dataGenerator.seedData()
 
     val positions = positionCache.getPositionsWithGemfireFunction()

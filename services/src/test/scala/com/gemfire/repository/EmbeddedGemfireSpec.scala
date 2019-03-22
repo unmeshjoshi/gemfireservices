@@ -5,24 +5,29 @@ import java.util.Properties
 import com.gemfire.authorization.OnlyFunctionCallsSecurityManager
 import com.gemfire.loader.VisibilityLoader
 import com.gemfire.models.Position
-import org.apache.geode.cache.{Cache, CacheFactory, CacheLoader, RegionShortcut}
+import org.apache.geode.cache.{Cache, CacheFactory, RegionShortcut}
 import org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT
 import org.apache.geode.pdx.ReflectionBasedAutoSerializer
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers  {
+class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers {
 
   test("should get position for assetClass and date") {
     val cache: Cache = createCache
+    while (true) {
 
-    val positionCache = new PositionCache(cache)
-    val fxRateCache = new FxRatesCache(cache)
-    val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
-    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache)
+      val positionCache = new PositionCache(cache)
+      val fxRateCache = new FxRatesCache(cache)
+      val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
+      val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.clientCache)
 
-    dataGenerator.seedData()
-    val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
-    assert(4 == positions.size)
+      val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
+
+      dataGenerator.seedData()
+      val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
+      assert(1 == positions.size)
+      Thread.sleep(200)
+    }
   }
 
   test("should get valuated positions with custom gemfire function") {
@@ -31,7 +36,9 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers  {
     val positionCache = new PositionCache(cache)
     val fxRateCache = new FxRatesCache(cache)
     val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
-    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache)
+    val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+
+    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
 
     dataGenerator.seedData()
 
@@ -47,7 +54,7 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers  {
 
     val factory = new CacheFactory(props)
     val cache = factory
-        .setPdxReadSerialized(true)
+      //        .setPdxReadSerialized(true)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setSecurityManager(new OnlyFunctionCallsSecurityManager())
       .setPdxDiskStore("DEFAULT")
