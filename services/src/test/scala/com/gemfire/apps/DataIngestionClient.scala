@@ -28,7 +28,7 @@ object DataIngestionClient extends App {
   }
 
   private def seedTransactions = {
-    (1 to 10000).foreach(i ⇒ {
+    (51000 to 60000).foreach(i ⇒ {
       val entryTuple = newTransactionsEntry(s"995238${i}")
       transactionCache.add(entryTuple._1, entryTuple._2)
     })
@@ -37,7 +37,7 @@ object DataIngestionClient extends App {
   private def newTransactionsEntry(accountNumber: String): (String, util.ArrayList[Transaction]) = {
     val transactionDate = "2018-1-2"
     val transactions = new java.util.ArrayList[Transaction]()
-    (1000 to 10000).foreach(i ⇒ {
+    (1 to 1000).foreach(i ⇒ {
       transactions.add(new Transaction(s"tranId_${i}", transactionDate, "100", "Taxes", accountNumber))
     })
     val key = s"${accountNumber}_${transactionDate}"
