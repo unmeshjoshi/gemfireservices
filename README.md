@@ -66,3 +66,8 @@ docker exec -it <container name> /bin/bash
     }
 }
 ```
+
+-Xms4g -Xmx4g -XX:NewRatio=2 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=90 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=2 -XX:+PrintTenuringDistribution -XX:+PrintGCDetails  
+
+-Xms4g -Xmx4g -XX:NewRatio=2 -XX:SurvivorRatio=1 -XX:TargetSurvivorRatio=90 -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:+PrintGCTimeStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=2 -XX:+PrintTenuringDistribution -XX:+PrintGCDetails   
+                                 

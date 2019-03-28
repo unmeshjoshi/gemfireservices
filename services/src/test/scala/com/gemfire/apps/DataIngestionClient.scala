@@ -16,7 +16,7 @@ object DataIngestionClient extends App {
 
   private def seedPositions = {
     val date = LocalDate.now()
-    for (i ← 1 to 10000) {
+    for (i ← 1 to 1000) {
       val positionDate = date.plusDays(i)
       positionCache.add(new Position(20000 + i, PositionType.SAVING, "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482 + i), "INR", positionDate.toEpochDay + ""))
     }
@@ -28,7 +28,7 @@ object DataIngestionClient extends App {
   }
 
   private def seedTransactions = {
-    (51000 to 60000).foreach(i ⇒ {
+    (51000 to 99000).foreach(i ⇒ {
       val entryTuple = newTransactionsEntry(s"995238${i}")
       transactionCache.add(entryTuple._1, entryTuple._2)
     })

@@ -1,29 +1,29 @@
 package com.gctest;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Producer implements Runnable {
-    private static ScheduledExecutorService executorService =
-            Executors.newScheduledThreadPool(2);
     private Deque<byte[]> deque;
     private int objectSize;
     private int queueSize;
-    public Producer(int objectSizeInKb, int ttlSeconds) {
-        this.deque = new ArrayDeque<byte[]>();
+    private int noOfObjects;
+
+    public Producer(int noOfObjects, int objectSizeInKb, int ttlSeconds) {
+        this.deque = new ConcurrentLinkedDeque<>();
         this.objectSize = objectSizeInKb;
         this.queueSize = ttlSeconds * 1000;
+        this.noOfObjects = noOfObjects;
+
     }
+
     @Override
     public void run() {
-        allocateObjects(100, objectSize);
+        allocateObjects(noOfObjects, objectSize);
     }
 
     private void unreferenceSomeObjects() {
-        if (deque.size() > queueSize) {
+        for(int i = 0; i < 100; i++) {
             byte[] localRef = deque.poll(); //unreference and remove from storage
         }
     }
@@ -31,20 +31,21 @@ public class Producer implements Runnable {
     private void allocateObjects(int noOfObjects, int objectSize) {
         for (int i = 0; i < noOfObjects; i++) {
             deque.add(new byte[objectSize]);
-            unreferenceSomeObjects();
+//            unreferenceSomeObjects();
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
-        executorService.scheduleAtFixedRate(new Producer(killoBytes(200), 5), 0,
-                20, TimeUnit.MILLISECONDS);
+        Producer command = new Producer(1000, killoBytes(100), 5);
+        while(true) {
+            command.run();
+            Thread.sleep(1000);
+        }
 
-
-        TimeUnit.MINUTES.sleep(10);
-        executorService.shutdownNow();
+//        executorService.awaitTermination(10, TimeUnit.MINUTES);
     }
 
     private static int killoBytes(int n) {
-        return n * 1024 * 1024 / 1000;
+        return n * 1024 * 8;
     }
 }
