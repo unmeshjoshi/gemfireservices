@@ -8,13 +8,41 @@ public class Producer implements Runnable {
     private int objectSize;
     private int queueSize;
     private int noOfObjects;
+    private long someField = 1000L;
+    private int anotherField2= 1200;
 
     public Producer(int noOfObjects, int objectSizeInKb, int ttlSeconds) {
         this.deque = new ConcurrentLinkedDeque<>();
         this.objectSize = objectSizeInKb;
         this.queueSize = ttlSeconds * 1000;
         this.noOfObjects = noOfObjects;
+        this.someField = queueSize * 200;
+        this.anotherField2 = queueSize * 20;
 
+    }
+
+    public Deque<byte[]> getDeque() {
+        return deque;
+    }
+
+    public int getObjectSize() {
+        return objectSize;
+    }
+
+    public int getQueueSize() {
+        return queueSize;
+    }
+
+    public int getNoOfObjects() {
+        return noOfObjects;
+    }
+
+    public long getSomeField() {
+        return someField;
+    }
+
+    public int getAnotherField2() {
+        return anotherField2;
     }
 
     @Override
@@ -31,7 +59,7 @@ public class Producer implements Runnable {
     private void allocateObjects(int noOfObjects, int objectSize) {
         for (int i = 0; i < noOfObjects; i++) {
             deque.add(new byte[objectSize]);
-//            unreferenceSomeObjects();
+            unreferenceSomeObjects();
         }
     }
 

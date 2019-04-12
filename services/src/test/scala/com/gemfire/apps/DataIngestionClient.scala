@@ -28,7 +28,7 @@ object DataIngestionClient extends App {
   }
 
   private def seedTransactions = {
-    (51000 to 99000).foreach(i ⇒ {
+    (99999 to 299999).foreach(i ⇒ {
       val entryTuple = newTransactionsEntry(s"995238${i}")
       transactionCache.add(entryTuple._1, entryTuple._2)
     })

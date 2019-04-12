@@ -13,11 +13,17 @@ class TransactionCache(val cache: GemFireCache) extends GemfireRepository {
     queryService.newQuery(oql).execute()
   }
 
+  def getAll() = {
+    val list = new util.ArrayList[Transaction]()
+    transactionRegion.getAll(list)
+    list
+  }
+
   def add(key: String, transactions: java.util.ArrayList[Transaction]): Unit = {
     transactionRegion.put(key, transactions)
   }
 
-  val transactionRegion: Region[String, java.util.ArrayList[Transaction]] = cache.getRegion("/Transactions")
+  lazy val transactionRegion: Region[String, java.util.ArrayList[Transaction]] = cache.getRegion("/Transactions")
 
 
 

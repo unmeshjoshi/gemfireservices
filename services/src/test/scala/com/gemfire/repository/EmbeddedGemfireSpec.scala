@@ -14,20 +14,17 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers {
 
   test("should get position for assetClass and date") {
     val cache: Cache = createCache
-    while (true) {
+    val positionCache = new PositionCache(cache)
+    val fxRateCache = new FxRatesCache(cache)
+    val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
+    val transactionCache: TransactionCache = new TransactionCache(cache)
 
-      val positionCache = new PositionCache(cache)
-      val fxRateCache = new FxRatesCache(cache)
-      val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
-      val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+    val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
 
-      val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
+    dataGenerator.seedData()
+    val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
+    assert(1 == positions.size)
 
-      dataGenerator.seedData()
-      val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
-      assert(1 == positions.size)
-      Thread.sleep(200)
-    }
   }
 
   test("should get valuated positions with custom gemfire function") {
@@ -54,13 +51,14 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers {
 
     val factory = new CacheFactory(props)
     val cache = factory
-      //        .setPdxReadSerialized(true)
+      .set("off-heap-memory-size", "200m")
+      .setPdxReadSerialized(true)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setSecurityManager(new OnlyFunctionCallsSecurityManager())
       .setPdxDiskStore("DEFAULT")
       .create()
 
-    cache.createRegionFactory(RegionShortcut.PARTITION).create("Positions")
+    cache.createRegionFactory(RegionShortcut.PARTITION).setOffHeap(true).create("Positions")
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("FxRates")
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("MarketPrices")
     cache.createRegionFactory(RegionShortcut.PARTITION).setCacheLoader(new VisibilityLoader()).create("Visibility")
