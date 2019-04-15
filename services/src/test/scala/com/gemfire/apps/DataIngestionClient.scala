@@ -11,6 +11,7 @@ object DataIngestionClient extends App {
   val positionCache = new PositionCache(instance)
   val transactionCache = new TransactionCache(instance)
 
+
   seedPositions
   seedMarketPrices
   seedTransactions
@@ -18,8 +19,15 @@ object DataIngestionClient extends App {
   private def seedPositions = {
     val date = LocalDate.now()
     for (i ← 1 to 1000) {
-      val positionDate = date.plusDays(i)
-      positionCache.add(new Position(20000 + i, PositionType.SAVING, "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482 + i), "INR", positionDate.toEpochDay + ""))
+      try {
+        val positionDate = date.plusDays(i)
+        positionCache.add(new Position(20000 + i, PositionType.SAVING, "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482 + i), "INR", positionDate.toEpochDay + ""))
+      } catch {
+        case e: Exception => {
+          println(e)
+          Thread.sleep(1000)
+        }
+      }
     }
   }
 

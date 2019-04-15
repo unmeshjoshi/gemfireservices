@@ -24,7 +24,9 @@ import scala.collection.JavaConverters._
 class PositionCache(val
                     cache: GemFireCache) extends GemfireRepository {
 
-  val positionRegion: Region[String, Position] = cache.getRegion("Positions")
+  def positionRegion: Region[String, Position] = {
+    cache.getRegion("Positions")
+  }
 
   private val queryService: QueryService = cache.getQueryService()
 
