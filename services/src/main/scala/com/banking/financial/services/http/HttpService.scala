@@ -16,7 +16,7 @@ object HttpService extends App {
   implicit val ec: ExecutionContextExecutor = actorSystem.dispatcher
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  val cache = ClientCacheProvider.clientCache
+  val cache = ClientCacheProvider.create
 
   val requestHandler: HttpRequest => Future[HttpResponse] = {
     case request@HttpRequest(GET, Uri.Path("/get-cached-values"), _, _, _) =>

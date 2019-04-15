@@ -33,7 +33,7 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers {
     val positionCache = new PositionCache(cache)
     val fxRateCache = new FxRatesCache(cache)
     val marketPriceCache: MarketPriceCache = new MarketPriceCache(cache)
-    val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+    val transactionCache: TransactionCache = new TransactionCache(ClientCacheProvider.create)
 
     val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
 

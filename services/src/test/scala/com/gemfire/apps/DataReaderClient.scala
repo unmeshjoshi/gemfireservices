@@ -2,8 +2,8 @@ package com.gemfire.apps
 
 import com.gemfire.repository.{ClientCacheProvider, PositionCache, TransactionCache}
 object DataReaderClient extends App {
-  val positionCache = new PositionCache(ClientCacheProvider.clientCache)
-  val transactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+  val positionCache = new PositionCache(ClientCacheProvider.create)
+  val transactionCache = new TransactionCache(ClientCacheProvider.create)
   println(transactionCache.getAll())
 
 //

@@ -7,8 +7,9 @@ import com.gemfire.models.{MarketPrice, Position, PositionType, Transaction}
 import com.gemfire.repository._
 
 object DataIngestionClient extends App {
-  val positionCache = new PositionCache(ClientCacheProvider.clientCache)
-  val transactionCache = new TransactionCache(ClientCacheProvider.clientCache)
+  private val instance = ClientCacheProvider.create
+  val positionCache = new PositionCache(instance)
+  val transactionCache = new TransactionCache(instance)
 
   seedPositions
   seedMarketPrices
@@ -23,7 +24,7 @@ object DataIngestionClient extends App {
   }
 
   private def seedMarketPrices = {
-    val marketPriceCache: MarketPriceCache = new MarketPriceCache(ClientCacheProvider.clientCache)
+    val marketPriceCache: MarketPriceCache = new MarketPriceCache(instance)
     marketPriceCache.add(new MarketPrice("USD", new java.math.BigDecimal("100"), new java.math.BigDecimal("200"), new java.math.BigDecimal("300"), new java.math.BigDecimal("100")))
   }
 

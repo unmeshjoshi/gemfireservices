@@ -12,7 +12,7 @@ class GemfireCustomFunctionSpec extends FunSuite {
     for (i ← 1 to 10000) {
       executor.execute(new Runnable {
         override def run(): Unit = {
-          val result = new JPositionCache(ClientCacheProvider.clientCache).multiplyOnServer(10, 2)
+          val result = new JPositionCache(ClientCacheProvider.create).multiplyOnServer(10, 2)
           assert(result == 20)
         }
       }
