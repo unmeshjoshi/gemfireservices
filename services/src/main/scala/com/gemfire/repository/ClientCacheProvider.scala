@@ -1,25 +1,28 @@
 package com.gemfire.repository
 
 import java.io.InputStream
-import java.net.InetSocketAddress
+import java.net.{InetAddress, InetSocketAddress}
 import java.util
 import java.util.Properties
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 
+import com.gemfire.internal.GemfireHealthCheckClient
 import com.gemfire.repository.ClientCacheProvider.ClusterState
 import javax.naming.Context
-import org.apache.geode.{CancelCriterion, LogWriter}
-import org.apache.geode.cache.client.internal.PoolImpl
-import org.apache.geode.cache.client.{ClientCache, ClientCacheFactory, ClientRegionShortcut, PoolManager}
+import org.apache.geode.cache.client.{ClientCacheFactory, ClientRegionShortcut}
 import org.apache.geode.cache.control.ResourceManager
 import org.apache.geode.cache.query.QueryService
 import org.apache.geode.cache.wan.GatewaySenderFactory
 import org.apache.geode.cache.{CacheTransactionManager, Declarable, DiskStore, DiskStoreFactory, GemFireCache, Region, RegionAttributes}
 import org.apache.geode.distributed.DistributedSystem
+import org.apache.geode.distributed.internal.DistributionConfigImpl
+import org.apache.geode.internal.cache.tier.sockets.AcceptorImpl
+import org.apache.geode.internal.net.SocketCreatorFactory
 import org.apache.geode.pdx.{PdxInstance, PdxInstanceFactory, PdxSerializer, ReflectionBasedAutoSerializer}
+import org.apache.geode.{CancelCriterion, LogWriter}
 
-class GemfireCacheDecorator(clusterState:AtomicReference[ClusterState]) extends GemFireCache {
+class GemfireCacheDecorator(clusterState: AtomicReference[ClusterState]) extends GemFireCache {
 
   override def getName: String = clusterState.get().clientCacheInstance.getName
 
@@ -27,9 +30,9 @@ class GemfireCacheDecorator(clusterState:AtomicReference[ClusterState]) extends 
 
   override def getResourceManager: ResourceManager = clusterState.get().clientCacheInstance.getResourceManager
 
-  override def setCopyOnRead(copyOnRead: Boolean): Unit = clusterState.get().clientCacheInstance.setCopyOnRead(copyOnRead)
-
   override def getCopyOnRead: Boolean = clusterState.get().clientCacheInstance.getCopyOnRead
+
+  override def setCopyOnRead(copyOnRead: Boolean): Unit = clusterState.get().clientCacheInstance.setCopyOnRead(copyOnRead)
 
   override def getRegionAttributes[K, V](id: String): RegionAttributes[K, V] = clusterState.get().clientCacheInstance.getRegionAttributes(id)
 
@@ -85,23 +88,23 @@ class GemfireCacheDecorator(clusterState:AtomicReference[ClusterState]) extends 
 }
 
 object ClientCacheProvider {
-  private var instance: AtomicReference[ClusterState] = _
   private val scheduler: ScheduledExecutorService =
     Executors.newScheduledThreadPool(1)
+  private var instance: AtomicReference[ClusterState] = _
 
   def create = {
     if (instance == null) {
-      val cluster = new Cluster("locator1", "locator2")
+      val cluster = new Connected("locator1", "locator2")
       instance = new AtomicReference(cluster)
       scheduleHealthCheck(cluster)
     }
     new GemfireCacheDecorator(instance)
   }
 
-  private def scheduleHealthCheck(cluster: ClusterState):Unit = {
+  private def scheduleHealthCheck(cluster: ClusterState): Unit = {
     val r = new Runnable() {
       override def run(): Unit = {
-        if (!cluster.isHealthy()) {
+        if (!cluster.shouldSwitchCluster()) {
           val otherCluster = cluster.switchToOtherCluster
           instance.set(otherCluster)
           scheduleHealthCheck(otherCluster)
@@ -114,18 +117,58 @@ object ClientCacheProvider {
   }
 
   trait ClusterState {
-    def switchToOtherCluster:ClusterState
-    def clientCacheInstance:GemFireCache
-    def isHealthy():Boolean
+    def switchToOtherCluster: ClusterState
+
+    def clientCacheInstance: GemFireCache
+
+    def shouldSwitchCluster(): Boolean
   }
 
-  class Cluster(locator:String, otherLocator:String) extends ClusterState {
+  class Connected(primaryLocator: String, secondaryLocator: String, shouldCheckForPrimary:Boolean = true) extends ClusterState {
+    val healthChecker = createHealthCheckerFor(if(shouldCheckForPrimary) primaryLocator else secondaryLocator)
 
-    lazy val cacheInstance = createClientCache(locator)
+    lazy val cacheInstance = createClientCache(primaryLocator)
 
     def clientCacheInstance = cacheInstance
 
-    private def createClientCache(locatorIp: String):GemFireCache = {
+    override def switchToOtherCluster: ClusterState = {
+      println(s"Closing cache with ${primaryLocator} and switching to ${secondaryLocator}")
+      this.close() //make sure client cache is closed
+      new Connected(secondaryLocator, primaryLocator, false)
+    }
+
+    def close() = cacheInstance.close()
+
+    override def shouldSwitchCluster(): Boolean = {
+      if(shouldCheckForPrimary)
+        !clusterIsHealthy()
+      else
+        clusterIsHealthy()
+    }
+
+    def clusterIsHealthy() = {
+      println(s"Checking if cluster with ${primaryLocator} is healthy")
+
+      import scala.collection.JavaConverters._
+
+
+      val locators: Seq[InetSocketAddress] = healthChecker.getOnlineLocators.asScala.toSeq
+      val servers = healthChecker.getAllServers.asScala.toSeq
+
+      atLeastOneLocatorIsUp(locators) && allServersAreUp(servers)
+    }
+
+    def allServersAreUp(servers: Seq[_]): Boolean = {
+      println(s"Checking if cluster with ${primaryLocator} has 2 servers up")
+      servers.size == 2
+    }
+
+    def atLeastOneLocatorIsUp(locators: Seq[_]): Boolean = {
+      println(s"Checking if cluster with ${primaryLocator} has ${locators.size} locators up")
+      locators.size >= 1
+    }
+
+    private def createClientCache(locatorIp: String): GemFireCache = {
       val factory = new ClientCacheFactory()
       val clientCache = factory.addPoolLocator(locatorIp, 9009)
         .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*,com.gemfire.functions.*"))
@@ -140,48 +183,19 @@ object ClientCacheProvider {
       clientCache
     }
 
-    override def switchToOtherCluster: ClusterState = {
-      println(s"Closing cache with ${locator} and switching to ${otherLocator}")
-      this.close() //make sure client cache is closed
-      new Cluster(otherLocator, locator)
-    }
-
-    override def isHealthy(): Boolean = clusterIsHealthy()
-
-    def close() = cacheInstance.close()
-
-    def clusterIsHealthy() = {
-      println(s"Checking if cluster with ${locator} is healthy")
-
-      import org.apache.geode.cache.client.internal.PoolImpl
-
-      import scala.collection.JavaConverters._
-
-      val pool = cacheInstance.asInstanceOf[ClientCache].getDefaultPool().asInstanceOf[PoolImpl]
-      val source = pool.getConnectionSource
-      val locators: Seq[InetSocketAddress] = source.getOnlineLocators.asScala.toSeq
-      val servers = source.getAllServers.asScala.toSeq
-
-      atLeastOneLocatorIsUp(locators) && allServersAreUp(servers)
-    }
-
-    def allServersAreUp(servers:Seq[_]):Boolean = {
-      println(s"Checking if cluster with ${locator} has ${servers.size} servers up")
-      servers.size == 2
-    }
-    def atLeastOneLocatorIsUp(locators:Seq[_]):Boolean = {
-      println(s"Checking if cluster with ${locator} has ${locators.size} locators up")
-      locators.size >= 1
-    }
-
     private def closeAndCreateCobCache = {
       cacheInstance.close()
     }
 
-    private def getPool(r: Region[Any, Any])
-    {
-      val poolName = r.getAttributes.getPoolName
-      PoolManager.find(poolName).asInstanceOf[PoolImpl]
+    def createHealthCheckerFor(locator:String) = {
+      val hostAddr = InetAddress.getByName(locator);
+      val sockAddr = new InetSocketAddress(hostAddr, 9009);
+      val config = new DistributionConfigImpl(new Properties())
+      SocketCreatorFactory.setDistributionConfig(config)
+      val gemfireHealthCheck = new GemfireHealthCheckClient(util.Arrays.asList(sockAddr), "", AcceptorImpl.DEFAULT_HANDSHAKE_TIMEOUT_MS)
+      gemfireHealthCheck.initializeFromLocators()
+      gemfireHealthCheck
     }
   }
+
 }
