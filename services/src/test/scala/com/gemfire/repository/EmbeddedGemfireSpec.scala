@@ -20,7 +20,6 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers {
     val transactionCache: TransactionCache = new TransactionCache(cache)
 
     val dataGenerator = new DataGenerator(positionCache, fxRateCache, marketPriceCache, transactionCache)
-
     dataGenerator.seedData()
     val positions: java.util.List[Position] = positionCache.getPositionsForAssetClass(1.toString, "EQUITY", "2018-01-28")
     assert(1 == positions.size)
@@ -52,13 +51,14 @@ class EmbeddedGemfireSpec extends FunSuite with BeforeAndAfter with Matchers {
     val factory = new CacheFactory(props)
     val cache = factory
       .set("off-heap-memory-size", "200m")
-      .setPdxReadSerialized(true)
+//      .setPdxReadSerialized(true)
       .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.models.*"))
       .setSecurityManager(new OnlyFunctionCallsSecurityManager())
       .setPdxDiskStore("DEFAULT")
       .create()
 
     cache.createRegionFactory(RegionShortcut.PARTITION).setOffHeap(true).create("Positions")
+    cache.createRegionFactory(RegionShortcut.PARTITION).create("Positions_Staging")
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("FxRates")
     cache.createRegionFactory(RegionShortcut.REPLICATE).create("MarketPrices")
     cache.createRegionFactory(RegionShortcut.PARTITION).setCacheLoader(new VisibilityLoader()).create("Visibility")

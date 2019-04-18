@@ -94,7 +94,7 @@ object ClientCacheProvider {
 
   def create = {
     if (instance == null) {
-      val cluster = new Connected("locator1", "locator2")
+      val cluster = new ConnectedToCluster("locator1", "locator2")
       instance = new AtomicReference(cluster)
       scheduleHealthCheck(cluster)
     }
@@ -124,7 +124,7 @@ object ClientCacheProvider {
     def shouldSwitchCluster(): Boolean
   }
 
-  class Connected(primaryLocator: String, secondaryLocator: String, shouldCheckForPrimary:Boolean = true) extends ClusterState {
+  class ConnectedToCluster(primaryLocator: String, secondaryLocator: String, shouldCheckForPrimary:Boolean = true) extends ClusterState {
     val healthChecker = createHealthCheckerFor(if(shouldCheckForPrimary) primaryLocator else secondaryLocator)
 
     lazy val cacheInstance = createClientCache(primaryLocator)
@@ -134,7 +134,7 @@ object ClientCacheProvider {
     override def switchToOtherCluster: ClusterState = {
       println(s"Closing cache with ${primaryLocator} and switching to ${secondaryLocator}")
       this.close() //make sure client cache is closed
-      new Connected(secondaryLocator, primaryLocator, false)
+      new ConnectedToCluster(secondaryLocator, primaryLocator, false)
     }
 
     def close() = cacheInstance.close()
@@ -177,6 +177,7 @@ object ClientCacheProvider {
         .setPoolReadTimeout(60000)
         .create()
       clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions")
+      clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions_Staging")
       clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("FxRates")
       clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("MarketPrices")
       clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Transactions")

@@ -13,8 +13,8 @@ object DataIngestionClient extends App {
 
 
   seedPositions
-  seedMarketPrices
-  seedTransactions
+//  seedMarketPrices
+//  seedTransactions
 
   private def seedPositions = {
     val date = LocalDate.now()
@@ -29,6 +29,7 @@ object DataIngestionClient extends App {
         }
       }
     }
+    positionCache.moveToProdRegion()
   }
 
   private def seedMarketPrices = {
