@@ -4,7 +4,7 @@ import scalapb.compiler.Version.scalapbVersion
 object Libs {
 
 
-  val ScalaVersion = "2.11.8"
+  val ScalaVersion = "2.12.4"
 
   val `geode`  = "org.apache.geode" % "geode-core" % "1.2.0"
   val `scalatest` = "org.scalatest" %% "scalatest" % "3.0.4" //Apache License 2.0

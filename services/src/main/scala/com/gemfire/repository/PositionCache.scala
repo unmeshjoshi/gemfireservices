@@ -25,7 +25,7 @@ class PositionCache(val
                     cache: GemFireCache) extends GemfireRepository {
 
   def positionRegion: Region[String, Position] = {
-    cache.getRegion("Positions_Staging")
+    cache.getRegion("Positions")
   }
 
   private val queryService: QueryService = cache.getQueryService()
@@ -144,18 +144,6 @@ class PositionCache(val
   def add = (position: Position) => {
     println(s"Adding position with key ${position.key()}")
     positionRegion.put(position.key(), position)
-  }
-
-  def moveToProdRegion(): Unit = {
-
-
-    val value:util.Map[String, Position] = positionRegion.getAll(positionRegion.keySetOnServer())
-    val positionProdRegion:Region[String, Position] = cache.getRegion("Positions")
-
-    val manager = cache.getCacheTransactionManager
-    manager.begin()
-    positionProdRegion.putAll(value)
-    manager.commit()
   }
 
   def get = (id: String) => positionRegion.get(id).asInstanceOf[PdxInstance]

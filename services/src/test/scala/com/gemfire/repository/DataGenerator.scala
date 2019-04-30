@@ -58,7 +58,6 @@ class DataGenerator(positionCache: PositionCache, fxRateCache: FxRatesCache, mar
       //      positionCache.add(new Position(2, PositionType.SAVING, "6334231406", "EQUITY", "CASH_EQUIVALANT", "10120", 2655, "222", new java.math.BigDecimal(837344728), "INR", "2018-01-28"))
       //      positionCache.add(new Position(2, PositionType.SAVING, "9928894277", "EQUITY", "INVESTMENT", "26510", 9439, "555", new java.math.BigDecimal(6710203), "INR", "2018-01-28"))
     }
-    positionCache.moveToProdRegion()
   }
 
   def clearData(): Unit = {

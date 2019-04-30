@@ -29,7 +29,6 @@ object DataIngestionClient extends App {
         }
       }
     }
-    positionCache.moveToProdRegion()
   }
 
   private def seedMarketPrices = {

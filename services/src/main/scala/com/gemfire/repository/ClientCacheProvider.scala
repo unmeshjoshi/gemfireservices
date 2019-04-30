@@ -94,7 +94,7 @@ object ClientCacheProvider {
 
   def create = {
     if (instance == null) {
-      val cluster = new ConnectedToCluster("locator1", "locator2")
+      val cluster = new ConnectedToCluster("locator1", "locator2", false)
       instance = new AtomicReference(cluster)
       scheduleHealthCheck(cluster)
     }
@@ -134,7 +134,7 @@ object ClientCacheProvider {
     override def switchToOtherCluster: ClusterState = {
       println(s"Closing cache with ${primaryLocator} and switching to ${secondaryLocator}")
       this.close() //make sure client cache is closed
-      new ConnectedToCluster(secondaryLocator, primaryLocator, false)
+      new ConnectedToCluster(secondaryLocator, primaryLocator, !shouldCheckForPrimary)
     }
 
     def close() = cacheInstance.close()

@@ -3,25 +3,41 @@ package com.gctest;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+class Address {
+    String street1;
+    String street2;
+    String city;
+    String state;
+    String country;
+}
+class Profile {
+    byte[] buffer;
+    String name;
+    String phoneNumber;
+    Address address;
+
+    public Profile(byte[] buffer, String name, String phoneNumber, Address address) {
+        this.buffer = buffer;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
+}
+
 public class Producer implements Runnable {
-    private Deque<byte[]> deque;
+    private Deque<Profile> deque;
     private int objectSize;
     private int queueSize;
     private int noOfObjects;
-    private long someField = 1000L;
-    private int anotherField2= 1200;
 
     public Producer(int noOfObjects, int objectSizeInKb, int ttlSeconds) {
         this.deque = new ConcurrentLinkedDeque<>();
         this.objectSize = objectSizeInKb;
         this.queueSize = ttlSeconds * 1000;
         this.noOfObjects = noOfObjects;
-        this.someField = queueSize * 200;
-        this.anotherField2 = queueSize * 20;
-
     }
 
-    public Deque<byte[]> getDeque() {
+    public Deque<Profile> getDeque() {
         return deque;
     }
 
@@ -37,29 +53,25 @@ public class Producer implements Runnable {
         return noOfObjects;
     }
 
-    public long getSomeField() {
-        return someField;
-    }
-
-    public int getAnotherField2() {
-        return anotherField2;
-    }
 
     @Override
     public void run() {
         allocateObjects(noOfObjects, objectSize);
+        unreferenceSomeObjects(1000);
     }
 
-    private void unreferenceSomeObjects() {
-        for(int i = 0; i < 100; i++) {
-            byte[] localRef = deque.poll(); //unreference and remove from storage
+    private void unreferenceSomeObjects(int noOfObjects) {
+        for(int i = 0; i < noOfObjects; i++) {
+            deque.poll(); //unreference and remove from storagefri
         }
     }
 
     private void allocateObjects(int noOfObjects, int objectSize) {
         for (int i = 0; i < noOfObjects; i++) {
-            deque.add(new byte[objectSize]);
-            unreferenceSomeObjects();
+            byte[] array = new byte[objectSize];
+            Address address = new Address();
+            Profile p = new Profile(array, "", "", address);
+            deque.add(p);
         }
     }
 
